@@ -1,10 +1,25 @@
 from django.db import models
 
 class City(models.Model):
-    name = models.name = models.CharField(max_length=50, verbose_name='Город')
+    name =  models.CharField(max_length=50, verbose_name='Город')
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name='Город'
+        verbose_name_plural='Города'
+
+
+class Specialty(models.Model):
+    name =  models.CharField(max_length=50, verbose_name='Специальность')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name='Специальность'
+        verbose_name_plural='Специальности'
 
 
 class Vacancy(models.Model):
@@ -12,8 +27,8 @@ class Vacancy(models.Model):
     title = models.CharField(max_length=250, verbose_name='Заголовок вакансии')
     description = models.TextField(blank=True, verbose_name='Описание вакансии')
     company = models.CharField(max_length=250, blank=True,  verbose_name='Название компании')
-    city = models.name = models.ForeignKey(City, verbose_name='Город', on_delete=models.CASCADE)
-    speciality = models.CharField(max_length=250, blank=True,  verbose_name='Специальность')
+    city =  models.ForeignKey(City, verbose_name='Город', on_delete=models.CASCADE)
+    specialty = models.ForeignKey(Specialty,   verbose_name='Специальность',  on_delete=models.CASCADE)
     timestamp = models.DateField(auto_now_add=True)
 
     def __str__(self):
