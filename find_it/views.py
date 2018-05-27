@@ -4,7 +4,11 @@ from scraping.models import *
 
 
 def home(request):
-    jobs = djinni()
+    jobs = []
+    jobs.extend(djinni())
+    jobs.extend(rabota())
+    jobs.extend(work())
+    jobs.extend(dou())
     city = City.objects.get(name='Киев')
     specialty = Specialty.objects.get(name='Python')
     v = Vacancy.objects.filter(city=city.id, specialty=specialty.id).values('url')
