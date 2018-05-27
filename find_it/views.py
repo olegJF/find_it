@@ -1,22 +1,29 @@
 from django.shortcuts import render
+from django.db import IntegrityError
 from scraping.utils import *
 from scraping.models import *
 
 
 def home(request):
-    jobs = []
-    jobs.extend(djinni())
-    jobs.extend(rabota())
-    jobs.extend(work())
-    jobs.extend(dou())
     city = City.objects.get(name='Киев')
     specialty = Specialty.objects.get(name='Python')
-    v = Vacancy.objects.filter(city=city.id, specialty=specialty.id).values('url')
-    url_list = [i['url'] for i in v]
+    url_qs = Url.objects.filter(city=city, specialty=specialty)
+    site = Site.objects.all()
+    url_w = url_qs.get(site=site.get(name='Work.ua')).url_address
+    jobs = []
+    # jobs.extend(djinni())
+    # jobs.extend(rabota())
+    jobs.extend(work(url_w))
+    # jobs.extend(dou())
+    
+    # v = Vacancy.objects.filter(city=city.id, specialty=specialty.id).values('url')
+    # url_list = [i['url'] for i in v]
     for job in jobs:
-        if job['href'] not in url_list:
-            vacancy = Vacancy(city=city, specialty=specialty, url=job['href'],
+        vacancy = Vacancy(city=city, specialty=specialty, url=job['href'],
                                 title=job['title'], description=job['descript'], company=job['company'])
+        try:
             vacancy.save()
+        except IntegrityError:
+            pass
 
     return render(request, 'base.html', {'jobs': jobs})
