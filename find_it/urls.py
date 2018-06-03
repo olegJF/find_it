@@ -21,5 +21,5 @@ urlpatterns = [
     url(r'^adminka/', admin.site.urls),
     url(r'^index/', index),
     url(r'^home/', home),
-    url(r'^list/', list_v),
+    url(r'^list/', vacancy_list),
 ]
