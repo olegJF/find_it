@@ -2,14 +2,26 @@
 
 {% block title %}   Список вакансий         {% endblock title %}
 {% block content %}
-        
-<div class="row">
-{% for job in jobs %}
-    
-   <h4> <a href='{{job.href}}'>{{job.title}}</a> </h4>
-    <p>{{job.descript}}</p><br/>
-    <p>{{job.company}}<p>
-    <hr><br/>
-{% endfor %}
+<div class="row my-5">
+    <div class="col">
+        <h1 class="my-5 ">Список вакансий</h1>
+    </div>
+</div>
+
+<div class="row my-5">
+    {% if jobs %}
+        {% for job in jobs %}
+            <div class="col-12 text-left">
+                <h4> <a href='{{job.url}}'>{{job.title}}</a> </h4>
+                <p>{{job.description}}</p><br/>
+                <p>{{job.company}}<p>
+                <hr><br/>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <h2> По Вашем запросу ничего не найдено!</h2>
+        </div>
+    {% endif %}
 </div>
 {% endblock content %}

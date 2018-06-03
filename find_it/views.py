@@ -1,10 +1,20 @@
 from django.shortcuts import render
 from django.db import IntegrityError
+import datetime
 from scraping.utils import *
 from scraping.models import *
 
 def index(request):
     return render(request, 'base.html')
+
+def list_v(request):
+    today = datetime.date.today()
+    city = City.objects.get(name='Львов')
+    specialty = Specialty.objects.get(name='Python')
+    qs = Vacancy.objects.filter(city=city.id, specialty=specialty.id, timestamp=today)
+    if qs:
+        return render(request, 'scraping/list.html', {'jobs': qs})
+    return render(request, 'scraping/list.html')
 
 
 def home(request):
