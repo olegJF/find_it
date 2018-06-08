@@ -54,7 +54,20 @@
     <main role="main" class="container my-5">
 
       <div class="starter-template text-center">
-        
+        <div class="row">
+            <div class="col">
+                {% if messages %}
+                  <ul class="messages">
+                        {% for message in messages %}
+                          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+                          {{ message }}
+                          </li>
+                        {% endfor %}
+                  </ul>
+                {% endif %}
+            </div>
+          </div>      
         {% block content %}
         {% endblock content %}
       </div>

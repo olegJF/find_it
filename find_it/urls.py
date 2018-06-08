@@ -16,10 +16,12 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from .views import *
+from subscribers.views import *
 
 urlpatterns = [
     url(r'^adminka/', admin.site.urls),
     url(r'^index/', index),
     url(r'^home/', home),
-    url(r'^list/', vacancy_list),
+    url(r'^list/', vacancy_list, name='list'),
+    url(r'^create/', SubscriberCreate.as_view(), name='create'),
 ]
