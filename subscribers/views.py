@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import SubscriberModelForm, LogInForm, SubscriberHiddenEmailForm
 from django.views.generic.edit import FormView, CreateView
 from django.contrib import messages
@@ -42,6 +42,16 @@ def update_subscriber(request):
         form = SubscriberHiddenEmailForm(initial={'email': qs.email, 'city': qs.city, 'specialty': qs.specialty, 
                                                     'password': qs.password, 'is_active': qs.is_active})
         return render(request, 'subscribers/update.html', {'form': form})
-    
-    
+    elif request.method == 'POST':
+        email = request.session.get('email')
+        user = get_object_or_404(Subscriber, email=email)
+        form = SubscriberHiddenEmailForm(request.POST or None, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Данные успешно сохранены.')
+            return redirect('list')
+        messages.error(request, 'Проверьте правильность заполнения формы')
+        return render(request, 'subscribers/update.html', {'form': form})
+    else:
+        return redirect('login')
 

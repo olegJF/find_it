@@ -23,5 +23,7 @@ urlpatterns = [
     url(r'^index/', index),
     url(r'^home/', home),
     url(r'^list/', vacancy_list, name='list'),
+    url(r'^login/', login_subscriber, name='login'),
+    url(r'^update/', update_subscriber, name='update'),
     url(r'^create/', SubscriberCreate.as_view(), name='create'),
 ]
