@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import SubscriberModelForm, LogInForm, SubscriberHiddenEmailForm
+from .forms import (SubscriberModelForm, LogInForm, 
+                    SubscriberHiddenEmailForm, ContactForm)
 from django.views.generic.edit import FormView, CreateView
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from .models import Subscriber
-
+from find_it.secret import ADMIN_EMAIL, MAILGUN_KEY, API
+import requests
 
 class SubscriberCreate(CreateView):
     model = Subscriber
@@ -56,3 +58,23 @@ def update_subscriber(request):
     else:
         return redirect('login')
 
+
+def contact_admin(request):
+    if request.method =='POST':
+        form = ContactForm(request.POST or None)
+        if form.is_valid():
+            city = form.cleaned_data['city']
+            specialty = form.cleaned_data['specialty']
+            from_email = form.cleaned_data['email']
+            content = 'Прошу добавить в поиск , город {}'.format(city)
+            content += ', специальность  {}'.format(specialty)
+            content += 'Запрос от пользователя  {}'.format(from_email)
+            Subject = 'Запрос на добавление в БД'
+            requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": from_email, "to": ADMIN_EMAIL,
+                                "subject":Subject , "text": content})
+            messages.success(request, 'Ваше письмо отправленно')
+            return redirect('index')
+        return render(request, 'subscribers/contact.html', {'form': form})
+    else:
+        form = ContactForm()
+    return render(request, 'subscribers/contact.html', {'form': form})
