@@ -6,8 +6,7 @@ from scraping.utils import *
 from scraping.models import *
 from scraping.forms import FindVacancyForm
 
-def index(request):
-    return render(request, 'base.html')
+
 
 def list_v(request):
     today = datetime.date.today()
@@ -19,23 +18,6 @@ def list_v(request):
     return render(request, 'scraping/list.html')
 
 
-def vacancy_list(request):
-    today = datetime.date.today()
-    form = FindVacancyForm
-    if request.GET:
-        try:
-            city_id = int(request.GET.get('city'))
-            specialty_id = int(request.GET.get('specialty'))
-        except ValueError:
-            raise Http404('Страница не найдена')
-        context = {}
-        context['form'] = form
-        qs = Vacancy.objects.filter(city=city_id, specialty=specialty_id, timestamp=today)
-        if qs:
-            context['jobs'] = qs
-            return render(request, 'scraping/list.html', context)
-
-    return render(request, 'scraping/list.html', {'form': form})
 
 def home(request):
     city = City.objects.get(name='Киев')

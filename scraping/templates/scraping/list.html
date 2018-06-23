@@ -10,11 +10,13 @@
 
 <div class="row my-5">
     {% if jobs %}
+        <h2>Вакансии по запросу: город -{{city}} , специальность - {{specialty}}</h2>
+        <hr><br/><br/>
         {% for job in jobs %}
             <div class="col-12 text-left">
                 <h4> <a href='{{job.url}}'>{{job.title}}</a> </h4>
                 <p>{{job.description}}</p><br/>
-                <p>{{job.company}}<p>
+                <p>Вакансия от компании: {{job.company}}<small>. Дата размещения вакансии - {{job.timestamp| date:"SHORT_DATE_FORMAT"}}</small></p>
                 <hr><br/>
             </div>
         {% endfor %}
