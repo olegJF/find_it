@@ -1,7 +1,6 @@
 import psycopg2
 import logging
 import datetime
-from scraping.utils import *
 
 today = datetime.date.today()
 ten_days_ago = datetime.date.today() - datetime.timedelta(10)
