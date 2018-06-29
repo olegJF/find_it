@@ -15,15 +15,15 @@ else:
     cur = conn.cursor()
     cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber WHERE is_active=%s;""", (True,))
     cities_qs = cur.fetchall()
-    print(cities_qs)
+    # print(cities_qs)
     todo_list = {i[0]:set() for i in cities_qs}
     for i in cities_qs:
         todo_list[i[0]].add(i[1])
-    print(todo_list)
+    # print(todo_list)
     cur.execute("""SELECT * FROM scraping_site; """)
     sites_qs = cur.fetchall()
     sites = {i[0]: i[1] for i in sites_qs}
-    print(sites)
+    # print(sites)
     url_list = []
     for city in todo_list:
         for sp in todo_list[city]:
@@ -31,7 +31,7 @@ else:
             cur.execute("""SELECT site_id, url_address FROM scraping_url 
                     WHERE city_id=%s AND specialty_id=%s;""", (city, sp))
             qs = cur.fetchall()
-            print(qs)
+            # print(qs)
             if qs:
                 tmp['city'] = city
                 tmp['specialty'] = sp
@@ -39,7 +39,7 @@ else:
                     site_id = item[0]
                     tmp[sites[site_id]] = item[1]
                 url_list.append(tmp)
-    print(url_list)
+    # print(url_list)
     all_data = []
     if url_list:
         for url in url_list:
@@ -53,7 +53,7 @@ else:
             tmp['specialty'] = url['specialty']
             tmp['content'] = tmp_content
             all_data.append(tmp)
-    print('get data')
+    # print('get data')
     if all_data:
         for data in all_data:
             city = data['city']
