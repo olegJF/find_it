@@ -135,6 +135,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-import dj-database-url
-db = dj-database-url.config()
+import dj_database_url
+db = dj_database_url.config()
 DATABASES['default'].update(db)
