@@ -16,7 +16,7 @@ else:
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
  
- try:
+try:
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD)
 except:
     logging.exception('Unable to open DB -{}'.format(today))
@@ -75,7 +75,7 @@ else:
                     cur.execute("""INSERT INTO scraping_vacancy (city_id, specialty_id, title,
                                  url, description, company, timestamp) VALUES (%s, %s, %s, %s, %s, %s, %s); """, 
                                  (city, specialty, job['title'],job['href'], job['descript'], job['company'], today ))
-    cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s:""", (ten_days_ago,))
+    cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", (ten_days_ago,))
 
     conn.commit()
     cur.close()
