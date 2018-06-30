@@ -1,11 +1,23 @@
 import psycopg2
 import logging
 import datetime
+import os
 import requests
 
 today = datetime.date.today()
 ten_days_ago = datetime.date.today() - datetime.timedelta(10)
-from find_it.secret import DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, MAILGUN_KEY, API
+
+dir = os.path.dirname(os.path.abspath('db.py'))
+path = ''.join([dir, '\\find_it\\secret.py'])
+if os.path.exists(path):
+    from find_it.secret import DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, MAILGUN_KEY, API
+else:
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_HOST = os.environ.get('DB_HOST')
+    DB_NAME = os.environ.get('DB_NAME')
+    DB_USER = os.environ.get('DB_USER')
+    MAILGUN_KEY = os.environ.get('MAILGUN_KEY')
+    API = os.environ.get('API')
 
 FROM_EMAIL = 'noreply@find_it.heroku.com'
 SUBJECT = 'Список вакансий за {}'.format(today)

@@ -1,13 +1,22 @@
 import psycopg2
 import logging
 import datetime
+import os
 from scraping.utils import *
 
 today = datetime.date.today()
 ten_days_ago = datetime.date.today() - datetime.timedelta(10)
-from find_it.secret import DB_PASSWORD, DB_HOST, DB_NAME, DB_USER
-
-try:
+dir = os.path.dirname(os.path.abspath('db.py'))
+path = ''.join([dir, '\\find_it\\secret.py'])
+if os.path.exists(path):
+    from find_it.secret import DB_PASSWORD, DB_HOST, DB_NAME, DB_USER
+else:
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_HOST = os.environ.get('DB_HOST')
+    DB_NAME = os.environ.get('DB_NAME')
+    DB_USER = os.environ.get('DB_USER')
+ 
+ try:
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD)
 except:
     logging.exception('Unable to open DB -{}'.format(today))
