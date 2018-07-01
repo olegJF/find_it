@@ -4,9 +4,14 @@ from .forms import (SubscriberModelForm, LogInForm,
 from django.views.generic.edit import FormView, CreateView
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
+from django.conf import settings
 from .models import Subscriber
-from find_it.secret import ADMIN_EMAIL, MAILGUN_KEY, API
-import requests
+
+
+ADMIN_EMAIL = settings.ADMIN_EMAIL
+MAILGUN_KEY = settings.MAILGUN_KEY
+API = settings.API
+
 
 class SubscriberCreate(CreateView):
     model = Subscriber

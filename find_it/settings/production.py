@@ -12,13 +12,16 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 try:
-    from find_it.secret import DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, SECRET_KEY
+    from find_it.secret import DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, SECRET_KEY, ADMIN_EMAIL, MAILGUN_KEY, API
 except:
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
     DB_HOST = os.environ.get('DB_HOST')
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
     SECRET_KEY = os.environ.get('SECRET_KEY')
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+    MAILGUN_KEY = os.environ.get('MAILGUN_KEY')
+    API = os.environ.get('API')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
