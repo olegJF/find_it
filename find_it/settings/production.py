@@ -36,7 +36,7 @@ SECRET_KEY = SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['finditapp.herokuapp.com']
+ALLOWED_HOSTS = ['jobfinderapp.herokuapp.com']
 
 
 # Application definition
