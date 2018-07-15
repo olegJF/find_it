@@ -49,6 +49,18 @@ else:
         
         requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": FROM_EMAIL, "to": ADMIN_EMAIL,
                             "subject": SUBJECT, "text": cnt})
+    cur.execute("""SELECT data FROM scraping_error WHERE timestamp=%s; """, (today, ))
+    err_qs = cur.fetchone()
+    if err_qs:
+        SUBJECT = 'Ошибки скрапинга по состоянию на {}'.format(today)
+        data = err_qs[0]['errors']
+        cnt = 'На дату {}  отсутствуют урлы для следующих пар:'.format(today)
+        for err in data:
+            cnt += 'для url -{}, причина - {}\n'.format(err['href'], err['title'])
+            
+        requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": FROM_EMAIL, "to": ADMIN_EMAIL,
+                                "subject": SUBJECT, "text": cnt})
+
 
     conn.commit()
     cur.close()

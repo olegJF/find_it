@@ -2,6 +2,7 @@ import psycopg2
 import logging
 import datetime
 import os
+import json
 from scraping.utils import *
 
 today = datetime.date.today()
@@ -50,14 +51,23 @@ else:
                 url_list.append(tmp)
     # print(url_list)
     all_data = []
+    errors = []
     if url_list:
         for url in url_list:
             tmp = {}
             tmp_content = []
-            tmp_content.extend(djinni(url['Djinni.co']))
-            tmp_content.extend(rabota(url['Rabota.ua']))
-            tmp_content.extend(work(url['Work.ua']))
-            tmp_content.extend(dou(url['Dou.ua']))
+            j, e = djinni(url['Djinni.co'])
+            tmp_content.extend(j)
+            errors.extend(e)
+            j, e = rabota(url['Rabota.ua'])
+            tmp_content.extend(j)
+            errors.extend(e)
+            j, e = work(url['Work.ua'])
+            tmp_content.extend(j)
+            errors.extend(e)
+            j, e = dou(url['Dou.ua'])
+            tmp_content.extend(j)
+            errors.extend(e)
             tmp['city'] = url['city']
             tmp['specialty'] = url['specialty']
             tmp['content'] = tmp_content
@@ -75,6 +85,20 @@ else:
                     cur.execute("""INSERT INTO scraping_vacancy (city_id, specialty_id, title,
                                  url, description, company, timestamp) VALUES (%s, %s, %s, %s, %s, %s, %s); """, 
                                  (city, specialty, job['title'],job['href'], job['descript'], job['company'], today ))
+
+    if errors:
+        cur.execute("""SELECT data FROM scraping_error WHERE timestamp=%s; """, (today, ))
+        err_qs = cur.fetchone()
+        if err_qs:
+            data = err_qs[0]
+            data['errors'].extend(errors)
+            cur.execute("""UPDATE scraping_error SET data=%s WHERE timestamp=%s; """, (json.dumps(data), today, ))
+        else:
+            data = {}
+            data['errors'] = errors
+            cur.execute("""INSERT INTO scraping_error (data, timestamp) VALUES (%s, %s); """, 
+                                 (json.dumps(data), today ))
+                                 
     cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", (ten_days_ago,))
 
     conn.commit()
