@@ -1,3 +1,4 @@
+{% load static %}
 {% url 'create' as create_url%}
 {% url 'update' as update_url%}
 <!doctype html>
@@ -7,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <!--<link rel="icon" href="../../../../favicon.ico"> -->
+    <link rel="icon" href="{% static 'favicon.ico'%}">
     
 
     <title>{% block title %}            {% endblock title %}</title>
@@ -15,13 +16,14 @@
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
+    <!-- Custom styles for this template
     <link href="starter-template.css" rel="stylesheet">
+     -->
   </head>
 
   <body>
     <div class="container">
-    <nav class="navbar navbar-expand-md navbar-dark " style="background-color: #5e33e0;">
+    <nav class="navbar navbar-expand-md navbar-dark " style="background-color: #99DDFF;">
       <a class="navbar-brand" href="{% url 'index' %}">Job Finder</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -34,7 +36,7 @@
             <a class="nav-link" href="{% url 'create'%}">Подписаться</a>
           </li>
           <li class="nav-item {% if request.path == update_url %} active {% endif %}">
-            <a class="nav-link " href="{% url 'update'%}">Редактировать</a>
+            <a class="nav-link " href="{% url 'update'%}">Профиль</a>
           </li>
           <!--
           <li class="nav-item dropdown">
