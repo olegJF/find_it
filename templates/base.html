@@ -16,15 +16,16 @@
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template
-    <link href="starter-template.css" rel="stylesheet">
-     -->
+    <!-- Custom styles for this template-->
+    <link href="{% static 'css/main.css'%}" rel="stylesheet">
+     
+
   </head>
 
   <body>
     <div class="container">
     <nav class="navbar navbar-expand-md navbar-dark " style="background-color: #99DDFF;">
-      <a class="navbar-brand" href="{% url 'index' %}">Job Finder</a>
+      <a class="navbar-brand" href="{% url 'index' %}" id='brand'>Job Finder</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
