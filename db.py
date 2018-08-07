@@ -56,16 +56,16 @@ else:
         for url in url_list:
             tmp = {}
             tmp_content = []
-            j, e = djinni(url['Djinni.co'])
+            j, e = djinni(url.get('Djinni.co', None))
             tmp_content.extend(j)
             errors.extend(e)
-            j, e = rabota(url['Rabota.ua'])
+            j, e = rabota(url.get('Rabota.ua', None))
             tmp_content.extend(j)
             errors.extend(e)
-            j, e = work(url['Work.ua'])
+            j, e = work(url.get('Work.ua', None))
             tmp_content.extend(j)
             errors.extend(e)
-            j, e = dou(url['Dou.ua'])
+            j, e = dou(url.get('Dou.ua', None))
             tmp_content.extend(j)
             errors.extend(e)
             tmp['city'] = url['city']

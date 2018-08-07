@@ -14,186 +14,191 @@ headers = [
         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
     ]
 def djinni(base_url):
-    session = requests.Session()
-    domain = 'https://djinni.co'
     jobs = []
     urls = []
     errors = []
-    urls.append(base_url)
-    urls.append(base_url+'&page=2')
+    if base_url:
+        session = requests.Session()
+        domain = 'https://djinni.co'
+        urls.append(base_url)
+        urls.append(base_url+'&page=2')
 
-    for url in urls:
-        time.sleep(2)
-        nmb = random.randint(0, 2)
-        req = session.get(url, headers=headers[nmb])
-        if req.status_code == 200:
-            bsObj = BS(req.content, "html.parser")
-            li_list = bsObj.find_all('li', attrs={'class': 'list-jobs__item'})
-            if li_list:
-                for li in li_list:
-                    div = li.find('div', attrs={'class': 'list-jobs__title'})
-                    title = div.a.text
-                    href = div.a['href']
-                    short = 'No description'
-                    # company = "No name"
-                    descr = li.find('div', attrs={'class': 'list-jobs__description'})
-                    if descr:
-                        short = descr.p.text
-                    jobs.append({'href': domain + href,
-                                'title': title, 
-                                'descript': short,
-                                'company': "No name"})
+        for url in urls:
+            time.sleep(2)
+            nmb = random.randint(0, 2)
+            req = session.get(url, headers=headers[nmb])
+            if req.status_code == 200:
+                bsObj = BS(req.content, "html.parser")
+                li_list = bsObj.find_all('li', attrs={'class': 'list-jobs__item'})
+                if li_list:
+                    for li in li_list:
+                        div = li.find('div', attrs={'class': 'list-jobs__title'})
+                        title = div.a.text
+                        href = div.a['href']
+                        short = 'No description'
+                        # company = "No name"
+                        descr = li.find('div', attrs={'class': 'list-jobs__description'})
+                        if descr:
+                            short = descr.p.text
+                        jobs.append({'href': domain + href,
+                                    'title': title, 
+                                    'descript': short,
+                                    'company': "No name"})
+                else:
+                    errors.append({'href': url,
+                                'title': 'The page is empty'})
             else:
                 errors.append({'href': url,
-                            'title': 'The page is empty'})
-        else:
-            errors.append({'href': url,
-                            'title': 'Page do not respose'})
+                                'title': 'Page do not respose'})
     return jobs, errors
 
 def rabota(base_url):
-    session = requests.Session()
-    domain = 'https://rabota.ua'
     jobs = []
     urls = []
     errors = []
-    yesterday = datetime.date.today()-datetime.timedelta(1)
-    one_day_ago = yesterday.strftime('%d.%m.%Y')
-    base_url = base_url + one_day_ago
-    urls.append(base_url)
+    if base_url:
+        session = requests.Session()
+        domain = 'https://rabota.ua'
+        yesterday = datetime.date.today()-datetime.timedelta(1)
+        one_day_ago = yesterday.strftime('%d.%m.%Y')
+        base_url = base_url + one_day_ago
+        urls.append(base_url)
 
-    nmb = random.randint(0, 2)
-    req = session.get(base_url, headers=headers[nmb])
-    if req.status_code == 200:
-        bsObj = BS(req.content, "html.parser")
-        pagination = bsObj.find('dl', attrs={'id': 'ctl00_content_vacancyList_gridList_ctl23_pagerInnerTable'})
-        if pagination:
-            pages = pagination.find_all('a', attrs={'class': 'f-always-blue'})
-            for page in pages:
-                urls.append(domain + page['href'])
-    else:
-        errors.append({'href': base_url,
-                            'title': 'Page do not respose'})
-    print(urls)
-    for url in urls:
-        time.sleep(2)
         nmb = random.randint(0, 2)
-        req = session.get(url, headers=headers[nmb])
+        req = session.get(base_url, headers=headers[nmb])
         if req.status_code == 200:
             bsObj = BS(req.content, "html.parser")
-            table = bsObj.find('table', attrs={'id': 'ctl00_content_vacancyList_gridList'})
-            if table:
-                tr_list = bsObj.find_all('tr', attrs={'id': True})
-                for tr in tr_list:
-                    h3 = tr.find('h3', attrs={'class': 'f-vacancylist-vacancytitle'})
-                    title = h3.a.text
-                    href = h3.a['href']
-                    short = 'No description'
-                    company = "No name"
-                    logo = tr.find('p', attrs={'class': 'f-vacancylist-companyname'})
-                    if logo:
-                        company = logo.a.text
-                    p = tr.find('p', attrs={'class': 'f-vacancylist-shortdescr'})
-                    if p:
-                        short = p.text
-                    jobs.append({'href': domain + href,
-                                'title': title, 
-                                'descript': short,
-                                'company': company})
+            pagination = bsObj.find('dl', attrs={'id': 'ctl00_content_vacancyList_gridList_ctl23_pagerInnerTable'})
+            if pagination:
+                pages = pagination.find_all('a', attrs={'class': 'f-always-blue'})
+                for page in pages:
+                    urls.append(domain + page['href'])
+        else:
+            errors.append({'href': base_url,
+                                'title': 'Page do not respose'})
+        # print(urls)
+        for url in urls:
+            time.sleep(2)
+            nmb = random.randint(0, 2)
+            req = session.get(url, headers=headers[nmb])
+            if req.status_code == 200:
+                bsObj = BS(req.content, "html.parser")
+                table = bsObj.find('table', attrs={'id': 'ctl00_content_vacancyList_gridList'})
+                if table:
+                    tr_list = bsObj.find_all('tr', attrs={'id': True})
+                    for tr in tr_list:
+                        h3 = tr.find('h3', attrs={'class': 'f-vacancylist-vacancytitle'})
+                        title = h3.a.text
+                        href = h3.a['href']
+                        short = 'No description'
+                        company = "No name"
+                        logo = tr.find('p', attrs={'class': 'f-vacancylist-companyname'})
+                        if logo:
+                            company = logo.a.text
+                        p = tr.find('p', attrs={'class': 'f-vacancylist-shortdescr'})
+                        if p:
+                            short = p.text
+                        jobs.append({'href': domain + href,
+                                    'title': title, 
+                                    'descript': short,
+                                    'company': company})
+                else:
+                    errors.append({'href': url,
+                                'title': 'The page is empty'})
             else:
                 errors.append({'href': url,
-                            'title': 'The page is empty'})
-        else:
-            errors.append({'href': url,
-                            'title': 'Page do not respose'})
+                                'title': 'Page do not respose'})
     return jobs, errors
 
 
 def work(base_url):
-    session = requests.Session()
-    domain = 'https://www.work.ua'
     jobs = []
     urls = []
     errors = []
-    urls.append(base_url)
-    nmb = random.randint(0, 2)
-    req = session.get(base_url, headers=headers[nmb])
-    if req.status_code == 200:
-        bsObj = BS(req.content, "html.parser")
-        pagination = bsObj.find('ul', attrs={'class': 'pagination'})
-        if pagination:
-            pages = pagination.find_all('li', attrs={'class': False})
-            for page in pages:
-                urls.append(domain + page.a['href'])
-    else:
-        errors.append({'href': base_url,
-                            'title': 'Page do not respose'})
-    for url in urls:
-        time.sleep(2)
+    if base_url:
+        session = requests.Session()
+        domain = 'https://www.work.ua'
+        urls.append(base_url)
         nmb = random.randint(0, 2)
-        req = session.get(url, headers=headers[nmb])
+        req = session.get(base_url, headers=headers[nmb])
         if req.status_code == 200:
             bsObj = BS(req.content, "html.parser")
-            div_list = bsObj.find_all('div', attrs={'class': 'job-link'})
-            if div_list:
-                for div in div_list:
-                    title = div.find('h2')
-                    href = title.a['href']
-                    short = div.p.text
-                    company = "No name"
-                    logo = div.find('img')
-                    if logo:
-                        company = logo['alt']
-                    jobs.append({'href': domain + href,
-                                'title': title.text, 
-                                'descript': short,
-                                'company': company})
+            pagination = bsObj.find('ul', attrs={'class': 'pagination'})
+            if pagination:
+                pages = pagination.find_all('li', attrs={'class': False})
+                for page in pages:
+                    urls.append(domain + page.a['href'])
+        else:
+            errors.append({'href': base_url,
+                                'title': 'Page do not respose'})
+        for url in urls:
+            time.sleep(2)
+            nmb = random.randint(0, 2)
+            req = session.get(url, headers=headers[nmb])
+            if req.status_code == 200:
+                bsObj = BS(req.content, "html.parser")
+                div_list = bsObj.find_all('div', attrs={'class': 'job-link'})
+                if div_list:
+                    for div in div_list:
+                        title = div.find('h2')
+                        href = title.a['href']
+                        short = div.p.text
+                        company = "No name"
+                        logo = div.find('img')
+                        if logo:
+                            company = logo['alt']
+                        jobs.append({'href': domain + href,
+                                    'title': title.text, 
+                                    'descript': short,
+                                    'company': company})
+                else:
+                    errors.append({'href': url,
+                                'title': 'The page is empty'})
             else:
                 errors.append({'href': url,
-                            'title': 'The page is empty'})
-        else:
-            errors.append({'href': url,
-                            'title': 'Page do not respose'})
+                                'title': 'Page do not respose'})
 
     return jobs, errors
 
 
 def dou(base_url):
-    session = requests.Session()
+    
     jobs = []
     urls = []
     errors = []
-    urls.append(base_url)
+    if base_url:
+        urls.append(base_url)
+        session = requests.Session()
 
-    for url in urls:
-        time.sleep(2)
-        nmb = random.randint(0, 2)
-        req = session.get(url, headers=headers[nmb])
-        if req.status_code == 200:
-            bsObj = BS(req.content, "html.parser")
-            div = bsObj.find('div', attrs={'id': 'vacancyListId'})
-            if div:
-                li_list = bsObj.find_all('li', attrs={'class': 'l-vacancy'})
-                for li in li_list:
-                    a = li.find('a', attrs={'class': 'vt'})
-                    title = a.text
-                    href = a['href']
-                    short = 'No description'
-                    company = "No name"
-                    a_company = li.find('a', attrs={'class': 'company'})
-                    if a_company:
-                        company = a_company.text
-                    descr = li.find('div', attrs={'class': 'sh-info'})
-                    if descr:
-                        short = descr.text
-                    jobs.append({'href': href,
-                                'title': title, 
-                                'descript': short,
-                                'company': company})
+        for url in urls:
+            time.sleep(2)
+            nmb = random.randint(0, 2)
+            req = session.get(url, headers=headers[nmb])
+            if req.status_code == 200:
+                bsObj = BS(req.content, "html.parser")
+                div = bsObj.find('div', attrs={'id': 'vacancyListId'})
+                if div:
+                    li_list = bsObj.find_all('li', attrs={'class': 'l-vacancy'})
+                    for li in li_list:
+                        a = li.find('a', attrs={'class': 'vt'})
+                        title = a.text
+                        href = a['href']
+                        short = 'No description'
+                        company = "No name"
+                        a_company = li.find('a', attrs={'class': 'company'})
+                        if a_company:
+                            company = a_company.text
+                        descr = li.find('div', attrs={'class': 'sh-info'})
+                        if descr:
+                            short = descr.text
+                        jobs.append({'href': href,
+                                    'title': title, 
+                                    'descript': short,
+                                    'company': company})
+                else:
+                    errors.append({'href': url,
+                                'title': 'The page is empty'})
             else:
                 errors.append({'href': url,
-                            'title': 'The page is empty'})
-        else:
-            errors.append({'href': url,
-                            'title': 'Page do not respose'})
+                                'title': 'Page do not respose'})    
     return jobs, errors
