@@ -69,10 +69,10 @@ else:
                 content += '<p>{}</p><br/>'.format(job[3])
                 content += '<hr/><br/><br/>'
             html_m = template + content + end
-            part = MIMEText(html_message, 'html')
+            part = MIMEText(html_m, 'html')
             msg.attach(part)
             for email in emails:
-                msg['To'] = email
+                # msg['To'] = email
                 mail.sendmail(FROM_EMAIL, email, msg.as_string())
                 time.sleep(2)
         else:
