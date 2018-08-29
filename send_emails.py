@@ -5,6 +5,7 @@ import os
 import requests
 import smtplib
 import time
+import socket
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -32,35 +33,46 @@ else:
 
 # FROM_EMAIL = 'noreply@find_it.heroku.com'
 # SUBJECT = 'Список вакансий за {}'.format(today)
-template = '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body>'
+template = '''<!doctype html><html lang="en">
+                <head><meta charset="utf-8"></head>
+                <body>'''
 end = '</body></html>'
 
-msg = MIMEMultipart('alternative')
-msg['Subject'] = 'Список вакансий за  {}'.format(today)
-msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
+
 try:
-    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD)
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, 
+                            host=DB_HOST, password=DB_PASSWORD)
 except:
     logging.exception('Unable to open DB -{}'.format(today))
 else:
     cur = conn.cursor()
-    cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber WHERE is_active=%s;""", (True,))
+    cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber 
+                    WHERE is_active=%s;""", (True,))
     cities_qs = cur.fetchall()
-    mail = smtplib.SMTP(MAIL_SERVER, 587)
-    mail.ehlo()
-    mail.starttls()
-    mail.login(USER_AWARD, PASSWORD_AWARD)
+    
     for pair in cities_qs:
-        content = ''
+        content = '''<h3>Список вакансий, согласно Ваших предпочтений. </h3>
+                    <hr><br/><br/>С сайта {}'''.format(socket.gethostname())
         city = pair[0]
         specialty = pair[1]
-        cur.execute(""" SELECT email FROM subscribers_subscriber WHERE is_active=%s 
-                            AND city_id=%s AND specialty_id=%s;""", (True, city, specialty))
+        cur.execute(""" SELECT email FROM subscribers_subscriber 
+                            WHERE is_active=%s 
+                            AND city_id=%s AND specialty_id=%s;""", 
+                            (True, city, specialty))
         email_qs = cur.fetchall()
         emails = [i[0] for i in email_qs]
-        cur.execute("""SELECT url, title, description, company FROM scraping_vacancy WHERE city_id=%s 
-                        AND specialty_id=%s AND timestamp=%s; """, (city, specialty, today ))
+        cur.execute("""SELECT url, title, description, company 
+                        FROM scraping_vacancy WHERE city_id=%s 
+                        AND specialty_id=%s AND timestamp=%s; """, 
+                        (city, specialty, today ))
         jobs_qs = cur.fetchall()
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'Список вакансий за  {}'.format(today)
+        msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
+        mail = smtplib.SMTP(MAIL_SERVER, 587)
+        mail.ehlo()
+        mail.starttls()
+        mail.login(USER_AWARD, PASSWORD_AWARD)
         if jobs_qs:
             for job in jobs_qs:
                 content += '<a href="{}" target="_blank">'.format(job[0])
@@ -68,23 +80,31 @@ else:
                 content += '<p>{}</p>'.format(job[2])
                 content += '<p>{}</p><br/>'.format(job[3])
                 content += '<hr/><br/><br/>'
+            content += '''<h4>Вы получили данное письмо потому, что подписались 
+                            на <a href="{}" target="_blank">
+                            сервис по рассылке вакансий <a> согласно вашиx 
+                            предпочтений<h4><br/>
+                            <h5>Спасибо, что Вы с нами! </h5><br/>
+                            '''.format('jobfinderapp.herokuapp.com')
             html_m = template + content + end
             part = MIMEText(html_m, 'html')
             msg.attach(part)
-            for email in emails:
-                # msg['To'] = email
-                mail.sendmail(FROM_EMAIL, email, msg.as_string())
-                time.sleep(2)
+            mail.sendmail(FROM_EMAIL, emails, msg.as_string())
+            # for email in emails:
+            #     # msg['To'] = email
+            #     mail.sendmail(FROM_EMAIL, email, msg.as_string())
+            #     time.sleep(2)
         else:
             text = 'На сегодня, список вакансий по Вашему запросу, пуст.'
             part = MIMEText(text, 'plain')
             msg.attach(part)
-            for email in emails:
-                msg['To'] = email
-                mail.sendmail(FROM_EMAIL, email, msg.as_string())
-                time.sleep(2)
-
+            mail.sendmail(FROM_EMAIL, emails, msg.as_string())
+            # for email in emails:
+            #     msg['To'] = email
+            #     mail.sendmail(FROM_EMAIL, email, msg.as_string())
+            #     time.sleep(2)
+        mail.quit()
     conn.commit()
     cur.close()
     conn.close()
-    mail.quit()
+    
