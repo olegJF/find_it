@@ -5,7 +5,7 @@ import os
 import requests
 import smtplib
 import time
-import socket
+
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -52,7 +52,7 @@ else:
     
     for pair in cities_qs:
         content = '''<h3>Список вакансий, согласно Ваших предпочтений. </h3>
-                    <hr><br/><br/>С сайта {}'''.format(socket.gethostname())
+                    <hr><br/><br/>'''
         city = pair[0]
         specialty = pair[1]
         cur.execute(""" SELECT email FROM subscribers_subscriber 
@@ -82,7 +82,7 @@ else:
                 content += '<hr/><br/><br/>'
             content += '''<h4>Вы получили данное письмо потому, что подписались 
                             на <a href="{}" target="_blank">
-                            сервис по рассылке вакансий <a> согласно вашиx 
+                            сервис по рассылке вакансий </a> согласно вашиx 
                             предпочтений<h4><br/>
                             <h5>Спасибо, что Вы с нами! </h5><br/>
                             '''.format('jobfinderapp.herokuapp.com')

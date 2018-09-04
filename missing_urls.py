@@ -34,6 +34,7 @@ else:
 msg = MIMEMultipart('alternative')
 msg['From'] = 'jobfinderapp.heroku.com <{email}>'.format(email=FROM_EMAIL)
 msg['To'] = ADMIN_EMAIL
+email = [ADMIN_EMAIL]
 
 try:
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD)

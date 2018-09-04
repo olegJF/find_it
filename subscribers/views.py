@@ -7,10 +7,18 @@ from django.core.urlresolvers import reverse_lazy
 from django.conf import settings
 from .models import Subscriber
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 ADMIN_EMAIL = settings.ADMIN_EMAIL
 MAILGUN_KEY = settings.MAILGUN_KEY
 API = settings.API
+MAIL_SERVER = settings.MAIL_SERVER
+PASSWORD_AWARD = settings.PASSWORD_AWARD
+USER_AWARD = settings.USER_AWARD
+FROM_EMAIL = settings.FROM_EMAIL
 
 
 class SubscriberCreate(CreateView):
@@ -74,10 +82,22 @@ def contact_admin(request):
             content = 'Прошу добавить в поиск , город {}'.format(city)
             content += ', специальность  {}'.format(specialty)
             content += 'Запрос от пользователя  {}'.format(from_email)
-            Subject = 'Запрос на добавление в БД'
-            requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": from_email, "to": ADMIN_EMAIL,
-                                "subject":Subject , "text": content})
+            # Subject = 'Запрос на добавление в БД'
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = 'Запрос на добавление в БД'
+            msg['From'] = '<{email}>'.format(email=FROM_EMAIL)
+            mail = smtplib.SMTP(MAIL_SERVER, 587)
+            mail.ehlo()
+            mail.starttls()
+            mail.login(USER_AWARD, PASSWORD_AWARD)
+            email = [ADMIN_EMAIL]
+            part = MIMEText(content, 'text')
+            msg.attach(part)
+            mail.sendmail(FROM_EMAIL, email, msg.as_string())
+            # requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": from_email, "to": ADMIN_EMAIL,
+            #                     "subject":Subject , "text": content})
             messages.success(request, 'Ваше письмо отправленно')
+            mail.quit()
             return redirect('index')
         return render(request, 'subscribers/contact.html', {'form': form})
     else:
