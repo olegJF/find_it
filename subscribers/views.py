@@ -83,16 +83,16 @@ def contact_admin(request):
             content += ', специальность  {}'.format(specialty)
             content += 'Запрос от пользователя  {}'.format(from_email)
             # Subject = 'Запрос на добавление в БД'
-            msg = MIMEMultipart('alternative')
+            msg = MIMEMultipart()
             msg['Subject'] = 'Запрос на добавление в БД'
             msg['From'] = '<{email}>'.format(email=FROM_EMAIL)
-            mail = smtplib.SMTP(MAIL_SERVER, 25)
+            mail = smtplib.SMTP()
+            mail.connect(MAIL_SERVER, 25)
             mail.ehlo()
             mail.starttls()
             mail.login(USER_AWARD, PASSWORD_AWARD)
             email = [ADMIN_EMAIL]
-            part = MIMEText(content, 'text')
-            msg.attach(part)
+            msg.attach(MIMEText(content))
             mail.sendmail(FROM_EMAIL, email, msg.as_string())
             # requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": from_email, "to": ADMIN_EMAIL,
             #                     "subject":Subject , "text": content})
