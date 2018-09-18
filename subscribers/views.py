@@ -86,7 +86,7 @@ def contact_admin(request):
             msg = MIMEMultipart('alternative')
             msg['Subject'] = 'Запрос на добавление в БД'
             msg['From'] = '<{email}>'.format(email=FROM_EMAIL)
-            mail = smtplib.SMTP(MAIL_SERVER, 587)
+            mail = smtplib.SMTP(MAIL_SERVER, 25)
             mail.ehlo()
             mail.starttls()
             mail.login(USER_AWARD, PASSWORD_AWARD)
