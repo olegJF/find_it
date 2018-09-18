@@ -69,7 +69,8 @@ else:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = 'Список вакансий за  {}'.format(today)
         msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
-        mail = smtplib.SMTP(MAIL_SERVER, 587)
+        mail = smtplib.SMTP()
+        mail.connect(MAIL_SERVER, 25)
         mail.ehlo()
         mail.starttls()
         mail.login(USER_AWARD, PASSWORD_AWARD)
@@ -95,8 +96,10 @@ else:
             #     mail.sendmail(FROM_EMAIL, email, msg.as_string())
             #     time.sleep(2)
         else:
-            text = 'На сегодня, список вакансий по Вашему запросу, пуст.'
-            part = MIMEText(text, 'plain')
+            content = '''<h3>На сегодня, список вакансий по 
+                                Вашему запросу, пуст.</h3> '''
+            html_m = template + content + end
+            part = MIMEText(html_m, 'html')
             msg.attach(part)
             mail.sendmail(FROM_EMAIL, emails, msg.as_string())
             # for email in emails:

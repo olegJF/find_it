@@ -31,7 +31,7 @@ else:
     
 # FROM_EMAIL = 'noreply@jobfinderapp.heroku.com'
 # SUBJECT = 'Недостающие урлы {}'.format(today)
-msg = MIMEMultipart('alternative')
+msg = MIMEMultipart()
 msg['From'] = 'jobfinderapp.heroku.com <{email}>'.format(email=FROM_EMAIL)
 msg['To'] = ADMIN_EMAIL
 email = [ADMIN_EMAIL]
@@ -52,7 +52,8 @@ else:
     sp = {i[0]: i[1] for i in sp_qs}
     mis_urls = []
     cnt = 'На дату {}  отсутствуют урлы для следующих пар:'.format(today)
-    mail = smtplib.SMTP(MAIL_SERVER, 587)
+    mail = smtplib.SMTP()
+    mail.connect(MAIL_SERVER, 25)
     mail.ehlo()
     mail.starttls()
     mail.login(USER_AWARD, PASSWORD_AWARD)
@@ -66,8 +67,7 @@ else:
         for p in mis_urls:
             cnt += 'город -{}, специальность - {}'.format(p[0], p[1])
         msg['Subject'] = 'Недостающие урлы {}'.format(today)
-        part = MIMEText(cnt, 'text')
-        msg.attach(part)
+        msg.attach(MIMEText(cnt))
         mail.sendmail(FROM_EMAIL, email, msg.as_string())
         time.sleep(2)
 
@@ -80,8 +80,7 @@ else:
         for err in data:
             cnt += 'для url -{}, причина - {}\n'.format(err['href'], err['title'])
             
-        part = MIMEText(cnt, 'text')
-        msg.attach(part)
+        msg.attach(MIMEText(cnt))
         mail.sendmail(FROM_EMAIL, email, msg.as_string())
 
 

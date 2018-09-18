@@ -79,13 +79,14 @@ def contact_admin(request):
             city = form.cleaned_data['city']
             specialty = form.cleaned_data['specialty']
             from_email = form.cleaned_data['email']
-            content = 'Прошу добавить в поиск , город {}'.format(city)
-            content += ', специальность  {}'.format(specialty)
+            content = 'Прошу добавить в поиск : город - {}'.format(city)
+            content += ', специальность - {}'.format(specialty)
             content += 'Запрос от пользователя  {}'.format(from_email)
             # Subject = 'Запрос на добавление в БД'
             msg = MIMEMultipart()
             msg['Subject'] = 'Запрос на добавление в БД'
             msg['From'] = '<{email}>'.format(email=FROM_EMAIL)
+            msg['To'] = ADMIN_EMAIL
             mail = smtplib.SMTP()
             mail.connect(MAIL_SERVER, 25)
             mail.ehlo()
