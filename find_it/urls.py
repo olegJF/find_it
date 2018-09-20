@@ -3,7 +3,7 @@ from django.contrib import admin
 from scraping.views import *
 from subscribers.views import *
 
-TOKEN = os.environ.get('TOKEN')
+TOKEN = os.environ.get('BOT_TOKEN')
 
 urlpatterns = [
     url(r'^adminka/', admin.site.urls),
