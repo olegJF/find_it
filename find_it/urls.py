@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from scraping.views import *
 from subscribers.views import *
+import os
 
 TOKEN = os.environ.get('BOT_TOKEN')
 
