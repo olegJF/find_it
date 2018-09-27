@@ -93,7 +93,7 @@ else:
                 mail.login(USER_AWARD, PASSWORD_AWARD)
                 part = MIMEText(html_m, 'html')
                 msg.attach(part)
-                mail.send_message(msg.as_string())
+                mail.send_message(msg)
                 time.sleep(5)
                 mail.quit()
         # else:
