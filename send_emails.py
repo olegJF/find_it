@@ -94,8 +94,8 @@ else:
                 part = MIMEText(html_m, 'html')
                 msg.attach(part)
                 mail.send_message(msg)
-                time.sleep(5)
                 mail.quit()
+                time.sleep(30)
         # else:
         #     content = '''<h3>На сегодня, список вакансий по 
         #                         Вашему запросу, пуст.</h3> '''
