@@ -61,7 +61,7 @@ else:
             tmp = {}
             tmp_content = []
             for (func, key) in UTILS_FUNC:
-                j, e = func(url[key])
+                j, e = func(url.get(key, None))
                 tmp_content.extend(j)
                 errors.extend(e)
             tmp['city'] = url['city']
