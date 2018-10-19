@@ -130,8 +130,8 @@ else:
             res = es.index(index='jobs', doc_type='live', body=data)
        
                            
-    # cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
-    #                (ten_days_ago,))
+    cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
+                   (ten_days_ago,))
 
     conn.commit()
     cur.close()
