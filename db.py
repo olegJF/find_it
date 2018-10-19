@@ -107,8 +107,9 @@ else:
                                  
     
 
-    cur.execute("""SELECT FROM  scraping_vacancy WHERE timestamp<=%s;""", 
-                    (ten_days_ago,))
+    cur.execute("""SELECT url, title, description, company, timestamp, 
+                    city_id, specialty_id FROM  scraping_vacancy 
+                    WHERE timestamp<=%s;""", (ten_days_ago,))
     qs = cur.fetchall()
     if qs:
         vacancies = []
@@ -120,12 +121,12 @@ else:
         sp = {i[0]: i[1] for i in sp_qs}
         es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
         for q in qs:
-            data = {'url': q['url'], 'title': q['title'], 
-                            'description': q['description'], 
-                            'company': q['company'],
-                            'timestamp': q['timestamp'],
-                            'city': cities[q['city_id']],
-                            'specialty': sp[q['specialty_id']]}
+            data = {'url': q[0], 'title': q[1], 
+                            'description': q[2], 
+                            'company': q[3],
+                            'timestamp': q[4],
+                            'city': cities[q[5]],
+                            'specialty': sp[q[6]]}
             res = es.index(index='jobs', doc_type='live', body=data)
        
                            
