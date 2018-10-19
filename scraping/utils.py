@@ -94,7 +94,10 @@ def rabota(base_url):
                         company = "No name"
                         logo = tr.find('p', attrs={'class': 'f-vacancylist-companyname'})
                         if logo:
-                            company = logo.a.text
+                            try:
+                                company = logo.text
+                            except:
+                                pass
                         p = tr.find('p', attrs={'class': 'f-vacancylist-shortdescr'})
                         if p:
                             short = p.text
