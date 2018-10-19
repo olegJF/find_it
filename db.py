@@ -111,26 +111,23 @@ else:
                     (ten_days_ago,))
     qs = cur.fetchall()
     if qs:
-        try:
-            
-            vacancies = []
-            cur.execute(""" SELECT * FROM scraping_city;""")
-            cities_qs = cur.fetchall()
-            cities = {i[0]: i[1] for i in cities_qs}
-            cur.execute(""" SELECT * FROM scraping_specialty;""")
-            sp_qs = cur.fetchall()
-            sp = {i[0]: i[1] for i in sp_qs}
-            es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
-            for q in qs:
-                data = {'url': q['url'], 'title': q['title'], 
-                                'description': q['description'], 
-                                'company': q['company'],
-                                'timestamp': q['timestamp'],
-                                'city': cities[q['city_id']],
-                                'specialty': sp[q['specialty_id']]}
-                res = es.index(index='jobs', doc_type='live', body=data)
-        except:
-            pass
+        vacancies = []
+        cur.execute(""" SELECT * FROM scraping_city;""")
+        cities_qs = cur.fetchall()
+        cities = {i[0]: i[1] for i in cities_qs}
+        cur.execute(""" SELECT * FROM scraping_specialty;""")
+        sp_qs = cur.fetchall()
+        sp = {i[0]: i[1] for i in sp_qs}
+        es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
+        for q in qs:
+            data = {'url': q['url'], 'title': q['title'], 
+                            'description': q['description'], 
+                            'company': q['company'],
+                            'timestamp': q['timestamp'],
+                            'city': cities[q['city_id']],
+                            'specialty': sp[q['specialty_id']]}
+            res = es.index(index='jobs', doc_type='live', body=data)
+       
                            
     # cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
     #                (ten_days_ago,))
