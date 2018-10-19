@@ -133,7 +133,7 @@ else:
             pass
                            
     # cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
-                    (ten_days_ago,))
+    #                (ten_days_ago,))
 
     conn.commit()
     cur.close()
