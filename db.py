@@ -4,6 +4,7 @@ import datetime
 import os
 import json
 from scraping.utils import *
+from elasticsearch import Elasticsearch
 
 today = datetime.date.today()
 UTILS_FUNC = [(djinni, 'Djinni.co'), (work, 'Work.ua'),
@@ -18,6 +19,9 @@ else:
     DB_HOST = os.environ.get('DB_HOST')
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
+    ES_PASSWORD = os.environ.get('ES_PASSWORD')
+    ES_HOST = os.environ.get('ES_HOST')
+    ES_USER = os.environ.get('ES_USER')
  
 try:
     conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST, 
@@ -101,7 +105,34 @@ else:
             cur.execute("""INSERT INTO scraping_error (data, timestamp) 
                             VALUES (%s, %s); """, (json.dumps(data), today ))
                                  
-    cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
+    
+
+    cur.execute("""SELECT FROM  scraping_vacancy WHERE timestamp<=%s;""", 
+                    (ten_days_ago,))
+    qs = cur.fetchall()
+    if qs:
+        try:
+            
+            vacancies = []
+            cur.execute(""" SELECT * FROM scraping_city;""")
+            cities_qs = cur.fetchall()
+            cities = {i[0]: i[1] for i in cities_qs}
+            cur.execute(""" SELECT * FROM scraping_specialty;""")
+            sp_qs = cur.fetchall()
+            sp = {i[0]: i[1] for i in sp_qs}
+            es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
+            for q in qs:
+                data = {'url': q['url'], 'title': q['title'], 
+                                'description': q['description'], 
+                                'company': q['company'],
+                                'timestamp': q['timestamp'],
+                                'city': cities[q['city_id']],
+                                'specialty': sp[q['specialty_id']]}
+                res = es.index(index='jobs', doc_type='live', body=data)
+        except:
+            pass
+                           
+    # cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
                     (ten_days_ago,))
 
     conn.commit()
