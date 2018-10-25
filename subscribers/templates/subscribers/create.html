@@ -10,10 +10,29 @@
 
 
 <div class="row">
-    <div class="col-md-8 mx-auto">
+    <div class="col-md-8 mx-auto text-left">
         <form method="post" action=""> {% csrf_token %}
-            {{form.as_p}}
-            <button type="submit" class="btn btn-success">Сохранить</button>
+        <p><label for="id_email">E-mail:</label> 
+        {{form.email}}</p>
+        <p><label for="id_city">Город:</label> 
+        {{form.city}}   </p>
+        <p><label for="id_specialty">Специальность:</label> 
+        {{form.specialty}}</p>
+        <p><label for="id_password">Пароль:</label> 
+        {{form.password}}</p>
+        <div class="row form-group form-check">
+            <div class="col-md-1  ">
+                <p class=''> {{form.is_active}}
+            </div>
+            <div class="col-md-11  ">
+            <label class="form-check-label" >
+            Я согласен получать рассылку по вакансиям, на указанный мной e-mail.
+            </label>
+             </p>
+            
+            </div>
+        </div>    
+                    <button type="submit" class="btn btn-success">Сохранить</button>
         </form>
     </div>
 </div>
