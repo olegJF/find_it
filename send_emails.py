@@ -17,8 +17,8 @@ dir = os.path.dirname(os.path.abspath('db.py'))
 path = ''.join([dir, '\\find_it\\secret.py'])
 if os.path.exists(path):
     from find_it.secret import (DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, 
-                                MAILGUN_KEY, API, MAIL_SERVER, 
-                                PASSWORD_AWARD, USER_AWARD, FROM_EMAIL)
+                                MAILGUN_KEY, api_key, api_secret, 
+                                 FROM_EMAIL)
 else:
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
     DB_HOST = os.environ.get('DB_HOST')
@@ -32,7 +32,7 @@ else:
     FROM_EMAIL = os.environ.get('FROM_EMAIL')
     
 
-FROM_ = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
+FROM_ = '{email}'.format(email=FROM_EMAIL)
 SUBJECT = 'Список вакансий за  {}'.format(today)
 template = '''<!doctype html><html lang="en">
                 <head><meta charset="utf-8"></head>
@@ -50,7 +50,8 @@ else:
     cur = conn.cursor()
     cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber 
                     WHERE is_active=%s;""", (True,))
-    cities_qs = cur.fetchall()
+    cities_qs = list(set(cur.fetchall()))
+    # print(cities_qs)
     
     for pair in cities_qs:
         content = '''<h3>Список вакансий, согласно Ваших предпочтений. </h3>
@@ -70,6 +71,7 @@ else:
         jobs_qs = cur.fetchall()
         
         if jobs_qs:
+            # print('Jobs are')
             for job in jobs_qs:
                 content += '<a href="{}" target="_blank">'.format(job[0])
                 content += '{}</a><br/>'.format(job[1])
@@ -81,7 +83,7 @@ else:
                             сервис по рассылке вакансий </a> согласно вашиx 
                             предпочтений<h4><br/>
                             <h5>Спасибо, что Вы с нами! </h5><br/>
-                            '''.format('jobfinderapp.herokuapp.com')
+                            '''.format('https://jobfinderapp.herokuapp.com/')
             html_m = template + content + end
             data = {}
             messages = []
@@ -103,10 +105,10 @@ else:
                                 })
             data['Messages'] = messages
             result = mailjet.send.create(data=data)
-            # print result.status_code
-            # print result.json()    
+            # print(result.status_code)
+            # print(result.json() )  
 
-        else:
+         else:
             content = '''<h3>На сегодня, список вакансий по 
                                 Вашему запросу, пуст.</h3> '''
             html_m = template + content + end
