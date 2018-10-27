@@ -17,8 +17,8 @@ dir = os.path.dirname(os.path.abspath('db.py'))
 path = ''.join([dir, '\\find_it\\secret.py'])
 if os.path.exists(path):
     from find_it.secret import (DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, 
-                                MAILGUN_KEY, api_key, api_secret, 
-                                 FROM_EMAIL)
+                                MAILGUN_KEY, API, MAIL_SERVER, 
+                                PASSWORD_AWARD, USER_AWARD, FROM_EMAIL)
 else:
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
     DB_HOST = os.environ.get('DB_HOST')
@@ -46,7 +46,7 @@ try:
 except:
     logging.exception('Unable to open DB -{}'.format(today))
 else:
-    mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+    # mailjet = Client(auth=(api_key, api_secret), version='v3.1')
     cur = conn.cursor()
     cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber 
                     WHERE is_active=%s;""", (True,))
@@ -69,7 +69,14 @@ else:
                         AND specialty_id=%s AND timestamp=%s; """, 
                         (city, specialty, today ))
         jobs_qs = cur.fetchall()
-        
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'Список вакансий за  {}'.format(today)
+        msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
+        mail = smtplib.SMTP()
+        mail.connect(MAIL_SERVER, 25)
+        mail.ehlo()
+        mail.starttls()
+        mail.login(USER_AWARD, PASSWORD_AWARD)
         if jobs_qs:
             # print('Jobs are')
             for job in jobs_qs:
@@ -85,54 +92,66 @@ else:
                             <h5>Спасибо, что Вы с нами! </h5><br/>
                             '''.format('https://jobfinderapp.herokuapp.com/')
             html_m = template + content + end
-            data = {}
-            messages = []
-            for email in emails:
-                messages.append({
-                                "From": {
-                                        "Email": FROM_,
-                                        "Name": "JobFinder"
-                                },
-                                "To": [
-                                        {
-                                        "Email": email,
-                                        "Name": " "
-                                        }
-                                ],
-                                "Subject": SUBJECT,
-                                "TextPart": text,
-                                "HTMLPart": html_m
-                                })
-            data['Messages'] = messages
-            result = mailjet.send.create(data=data)
+            part = MIMEText(html_m, 'html')
+            msg.attach(part)
+            mail.sendmail(FROM_EMAIL, emails, msg.as_string())
+            # data = {}
+            # messages = []
+            # for email in emails:
+            #     messages.append({
+            #                     "From": {
+            #                             "Email": FROM_,
+            #                             "Name": "JobFinder"
+            #                     },
+            #                     "To": [
+            #                             {
+            #                             "Email": email,
+            #                             "Name": " "
+            #                             }
+            #                     ],
+            #                     "Subject": SUBJECT,
+            #                     "TextPart": text,
+            #                     "HTMLPart": html_m
+            #                     })
+            # data['Messages'] = messages
+            # result = mailjet.send.create(data=data)
             # print(result.status_code)
             # print(result.json() )  
 
-         else:
+        else:
             content = '''<h3>На сегодня, список вакансий по 
                                 Вашему запросу, пуст.</h3> '''
+            content += '''<h4>Вы получили данное письмо потому, что подписались 
+                            на <a href="{}" target="_blank">
+                            сервис по рассылке вакансий </a> согласно вашиx 
+                            предпочтений<h4><br/>
+                            <h5>Спасибо, что Вы с нами! </h5><br/>
+                            '''.format('https://jobfinderapp.herokuapp.com/')
             html_m = template + content + end
-            data = {}
-            messages = []
-            for email in emails:
-                messages.append({
-                        "From": {
-                                "Email": FROM_,
-                                "Name": "JobFinder"
-                        },
-                        "To": [
-                                {
-                                "Email": email,
-                                "Name": " "
-                                }
-                        ],
-                        "Subject": SUBJECT,
-                        "TextPart": text + ' на сегодня, к сожалению пуст.',
-                        "HTMLPart": html_m
-                        })
-            data['Messages'] = messages
-            result = mailjet.send.create(data=data)
-        
+            part = MIMEText(html_m, 'html')
+            msg.attach(part)
+            mail.sendmail(FROM_EMAIL, emails, msg.as_string())
+            # data = {}
+            # messages = []
+            # for email in emails:
+            #     messages.append({
+            #             "From": {
+            #                     "Email": FROM_,
+            #                     "Name": "JobFinder"
+            #             },
+            #             "To": [
+            #                     {
+            #                     "Email": email,
+            #                     "Name": " "
+            #                     }
+            #             ],
+            #             "Subject": SUBJECT,
+            #             "TextPart": text + ' на сегодня, к сожалению пуст.',
+            #             "HTMLPart": html_m
+            #             })
+            # data['Messages'] = messages
+            # result = mailjet.send.create(data=data)
+        mail.quit()
     conn.commit()
     cur.close()
     conn.close()
