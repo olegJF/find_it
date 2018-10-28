@@ -5,7 +5,6 @@ import os
 import requests
 import smtplib
 import time
-from mailjet_rest import Client
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -46,7 +45,6 @@ try:
 except:
     logging.exception('Unable to open DB -{}'.format(today))
 else:
-    # mailjet = Client(auth=(api_key, api_secret), version='v3.1')
     cur = conn.cursor()
     cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber 
                     WHERE is_active=%s;""", (True,))
@@ -95,29 +93,7 @@ else:
             part = MIMEText(html_m, 'html')
             msg.attach(part)
             mail.sendmail(FROM_EMAIL, emails, msg.as_string())
-            # data = {}
-            # messages = []
-            # for email in emails:
-            #     messages.append({
-            #                     "From": {
-            #                             "Email": FROM_,
-            #                             "Name": "JobFinder"
-            #                     },
-            #                     "To": [
-            #                             {
-            #                             "Email": email,
-            #                             "Name": " "
-            #                             }
-            #                     ],
-            #                     "Subject": SUBJECT,
-            #                     "TextPart": text,
-            #                     "HTMLPart": html_m
-            #                     })
-            # data['Messages'] = messages
-            # result = mailjet.send.create(data=data)
-            # print(result.status_code)
-            # print(result.json() )  
-
+            
         else:
             content = '''<h3>На сегодня, список вакансий по 
                                 Вашему запросу, пуст.</h3> '''
@@ -131,26 +107,7 @@ else:
             part = MIMEText(html_m, 'html')
             msg.attach(part)
             mail.sendmail(FROM_EMAIL, emails, msg.as_string())
-            # data = {}
-            # messages = []
-            # for email in emails:
-            #     messages.append({
-            #             "From": {
-            #                     "Email": FROM_,
-            #                     "Name": "JobFinder"
-            #             },
-            #             "To": [
-            #                     {
-            #                     "Email": email,
-            #                     "Name": " "
-            #                     }
-            #             ],
-            #             "Subject": SUBJECT,
-            #             "TextPart": text + ' на сегодня, к сожалению пуст.',
-            #             "HTMLPart": html_m
-            #             })
-            # data['Messages'] = messages
-            # result = mailjet.send.create(data=data)
+            
         mail.quit()
     conn.commit()
     cur.close()
