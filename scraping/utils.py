@@ -68,7 +68,10 @@ def rabota(base_url):
         req = session.get(base_url, headers=headers[nmb])
         if req.status_code == 200:
             bsObj = BS(req.content, "html.parser")
-            pagination = bsObj.find('dl', attrs={'id': 'ctl00_content_vacancyList_gridList_ctl23_pagerInnerTable'})
+            pagination = bsObj.find('dl', 
+                    attrs={'id': 
+                    'ctl00_content_VacancyListAws_gridList_ctl23_pagerInnerTable'
+                        })
             if pagination:
                 pages = pagination.find_all('a', attrs={'class': 'f-always-blue'})
                 for page in pages:
@@ -83,22 +86,26 @@ def rabota(base_url):
             req = session.get(url, headers=headers[nmb])
             if req.status_code == 200:
                 bsObj = BS(req.content, "html.parser")
-                table = bsObj.find('table', attrs={'id': 'ctl00_content_vacancyList_gridList'})
+                table = bsObj.find('table', 
+                        attrs={'id': 'ctl00_content_VacancyListAws_gridList'})
                 if table:
                     tr_list = bsObj.find_all('tr', attrs={'id': True})
                     for tr in tr_list:
-                        h3 = tr.find('h3', attrs={'class': 'f-vacancylist-vacancytitle'})
+                        h3 = tr.find('h3', 
+                                attrs={'class': 'f-vacancylist-vacancytitle'})
                         title = h3.a.text
                         href = h3.a['href']
                         short = 'No description'
                         company = "No name"
-                        logo = tr.find('p', attrs={'class': 'f-vacancylist-companyname'})
+                        logo = tr.find('p', 
+                                    attrs={'class': 'f-vacancylist-companyname'})
                         if logo:
                             try:
                                 company = logo.text
                             except:
                                 pass
-                        p = tr.find('p', attrs={'class': 'f-vacancylist-shortdescr'})
+                        p = tr.find('p', 
+                                    attrs={'class': 'f-vacancylist-shortdescr'})
                         if p:
                             short = p.text
                         jobs.append({'href': domain + href,

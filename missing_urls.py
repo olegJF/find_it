@@ -80,7 +80,7 @@ else:
     if err_qs:
         msg['Subject'] = 'Ошибки скрапинга по состоянию на {}'.format(yesterday)
         data = err_qs[0]['errors']
-        cnt = 'На дату {}  отсутствуют урлы для следующих пар:'.format(yesterday)
+        cnt = 'На дату {}  обнаруженны следующие ошибки скрапинга:'.format(yesterday)
         for err in data:
             cnt += 'для url -{}, причина - {}\n'.format(err['href'], err['title'])
             
