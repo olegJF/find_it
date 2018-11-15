@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 today = datetime.date.today()
+yesterday = today - datetime.timedelta(1)
 dir = os.path.dirname(os.path.abspath('db.py'))
 path = ''.join([dir, '\\find_it\\secret.py'])
 if os.path.exists(path):
@@ -31,7 +32,7 @@ else:
     
 # FROM_EMAIL = 'noreply@jobfinderapp.heroku.com'
 # SUBJECT = 'Недостающие урлы {}'.format(today)
-msg = MIMEMultipart()
+msg = MIMEMultipart('alternative')
 msg['From'] = 'jobfinderapp.heroku.com <{email}>'.format(email=FROM_EMAIL)
 msg['To'] = ADMIN_EMAIL
 email = [ADMIN_EMAIL]
@@ -67,20 +68,24 @@ else:
         for p in mis_urls:
             cnt += 'город -{}, специальность - {}'.format(p[0], p[1])
         msg['Subject'] = 'Недостающие урлы {}'.format(today)
-        msg.attach(MIMEText(cnt))
+        
+        part = MIMEText(cnt, 'plain')
+        msg.attach(part)
         mail.sendmail(FROM_EMAIL, email, msg.as_string())
         time.sleep(2)
 
-    cur.execute("""SELECT data FROM scraping_error WHERE timestamp=%s; """, (today, ))
+    cur.execute("""SELECT data FROM scraping_error 
+                                WHERE timestamp=%s; """, (yesterday, ))
     err_qs = cur.fetchone()
     if err_qs:
-        msg['Subject'] = 'Ошибки скрапинга по состоянию на {}'.format(today)
+        msg['Subject'] = 'Ошибки скрапинга по состоянию на {}'.format(yesterday)
         data = err_qs[0]['errors']
-        cnt = 'На дату {}  отсутствуют урлы для следующих пар:'.format(today)
+        cnt = 'На дату {}  отсутствуют урлы для следующих пар:'.format(yesterday)
         for err in data:
             cnt += 'для url -{}, причина - {}\n'.format(err['href'], err['title'])
             
-        msg.attach(MIMEText(cnt))
+        part = MIMEText(cnt, 'plain')
+        msg.attach(part)
         mail.sendmail(FROM_EMAIL, email, msg.as_string())
 
 
