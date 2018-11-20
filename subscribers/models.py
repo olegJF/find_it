@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from scraping.models import City, Specialty
 
@@ -7,6 +8,7 @@ class Subscriber(models.Model):
     city = models.ForeignKey(City, verbose_name='Город' , on_delete=models.CASCADE)
     specialty = models.ForeignKey(Specialty, verbose_name='Специальность' , on_delete=models.CASCADE)
     password = models.CharField(max_length=100,  verbose_name='Пароль')
+    token = models.UUIDField(blank = True) 
     is_active = models.BooleanField(default=True, verbose_name='Получать рассылку?')
 
     
