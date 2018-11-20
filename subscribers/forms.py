@@ -51,3 +51,8 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label='E-mail', required=True, widget=forms.EmailInput(attrs={"class": 'form-control'}))
     city = forms.CharField( label='Город', required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
     specialty = forms.CharField( label='Специальность', required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+
+class TokenForm(forms.Form):
+    email = forms.EmailField(widget=forms.HiddenInput())
+    token = forms.CharField(widget=forms.HiddenInput())

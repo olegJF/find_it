@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import (SubscriberModelForm, LogInForm, 
-                    SubscriberHiddenEmailForm, ContactForm)
+                    SubscriberHiddenEmailForm, ContactForm, TokenForm)
 from django.views.generic.edit import FormView, CreateView
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
@@ -54,9 +54,15 @@ def update_subscriber(request):
     if request.method == 'GET' and request.session.get('email', False):
         email = request.session.get('email')
         qs = Subscriber.objects.filter(email=email).first()
-        form = SubscriberHiddenEmailForm(initial={'email': qs.email, 'city': qs.city, 'specialty': qs.specialty, 
-                                                    'password': qs.password, 'is_active': qs.is_active})
-        return render(request, 'subscribers/update.html', {'form': form})
+        token_form = TokenForm(initial={'email': qs.email, 'token': qs.token})
+        form = SubscriberHiddenEmailForm(initial={'email': qs.email, 
+                                                    'city': qs.city, 
+                                                    'specialty': qs.specialty, 
+                                                    'password': qs.password, 
+                                                    'is_active': qs.is_active})
+        return render(request, 'subscribers/update.html', 
+                                                {'form': form, 
+                                                'token_form': token_form})
     elif request.method == 'POST':
         email = request.session.get('email')
         user = get_object_or_404(Subscriber, email=email)
@@ -65,11 +71,33 @@ def update_subscriber(request):
             form.save()
             messages.success(request, 'Данные успешно сохранены.')
             del request.session['email']
-            return redirect('list')
+            return redirect('index')
         messages.error(request, 'Проверьте правильность заполнения формы')
         return render(request, 'subscribers/update.html', {'form': form})
     else:
         return redirect('login')
+
+
+def delete_subscriber(request):
+    if request.method == 'POST':
+        email = request.session.get('email')
+        user = get_object_or_404(Subscriber, email=email)
+        form = TokenForm(request.POST or None)
+        if form.is_valid():
+            form_email = form.cleaned_data['email']
+            form_token = form.cleaned_data['token']
+            token = str(user.token)
+            # assert False 
+            if email == form_email and token == form_token:
+                user.delete()
+                messages.success(request, 'Данные успешно удалены.')
+                del request.session['email']
+                return redirect('index')
+        messages.error(request, 'Проверьте правильность заполнения формы')
+        return render(request, 'subscribers/update.html')
+    else:
+        return redirect('login')
+
 
 
 def contact_admin(request):

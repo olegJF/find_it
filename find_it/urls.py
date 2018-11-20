@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^update/', update_subscriber, name='update'),
     url(r'^create/', SubscriberCreate.as_view(), name='create'),
     url(r'^contact/', contact_admin, name='contact'),
+    url(r'^delete/$', delete_subscriber, name='delete'),
     url(r'^$', index, name='index'),
 ]

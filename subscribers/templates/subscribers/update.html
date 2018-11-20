@@ -15,6 +15,15 @@
             {{form.as_p}}
             <button type="submit" class="btn btn-success">Редактировать</button>
         </form>
+
+    </div>
+    <div class="col-md-6 my-4">
+        <form method="post" action="{% url 'delete' %}"> {% csrf_token %}
+            {{token_form.as_p}}
+            <button type="submit" class="btn btn-danger">Удалить данные</button>
+        </form>
+
     </div>
 </div>
+
 {% endblock content %}
