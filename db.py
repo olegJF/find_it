@@ -131,9 +131,11 @@ else:
                                 'timestamp': q[4],
                                 'city': cities[q[5]],
                                 'specialty': sp[q[6]]}
-                res = es.index(index='jobs', doc_type='live', body=data)
-       
-                           
+                try:
+                    res = es.index(index='jobs', doc_type='live', body=data)
+                except:
+                    pass
+                    
     cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
                    (ten_days_ago,))
 
