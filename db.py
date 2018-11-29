@@ -119,15 +119,19 @@ else:
         cur.execute(""" SELECT * FROM scraping_specialty;""")
         sp_qs = cur.fetchall()
         sp = {i[0]: i[1] for i in sp_qs}
-        es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
-        for q in qs:
-            data = {'url': q[0], 'title': q[1], 
-                            'description': q[2], 
-                            'company': q[3],
-                            'timestamp': q[4],
-                            'city': cities[q[5]],
-                            'specialty': sp[q[6]]}
-            res = es.index(index='jobs', doc_type='live', body=data)
+        try:
+            es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
+        except:
+            pass
+        else:
+            for q in qs:
+                data = {'url': q[0], 'title': q[1], 
+                                'description': q[2], 
+                                'company': q[3],
+                                'timestamp': q[4],
+                                'city': cities[q[5]],
+                                'specialty': sp[q[6]]}
+                res = es.index(index='jobs', doc_type='live', body=data)
        
                            
     cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
