@@ -70,7 +70,7 @@ else:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = 'Список вакансий за  {}'.format(today)
         # msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
-        msg['From'] = FROM
+        msg['From'] = FROM_
         mail = smtplib.SMTP()
         mail.connect(MAIL_SERVER, 25)
         mail.ehlo()
