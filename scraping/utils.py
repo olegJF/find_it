@@ -70,8 +70,8 @@ def rabota(base_url):
             bsObj = BS(req.content, "html.parser")
             pagination = bsObj.find('dl', 
                     attrs={'id': 
-                    'ctl00_content_VacancyListAws_gridList_ctl23_pagerInnerTable'
-                        })
+                    'ctl00_content_vacancyList_gridList_ctl23_pagerInnerTable' 
+                        })# ctl00_content_VacancyListAws_gridList_ctl23_pagerInnerTable
             if pagination:
                 pages = pagination.find_all('a', attrs={'class': 'f-always-blue'})
                 for page in pages:
@@ -87,7 +87,8 @@ def rabota(base_url):
             if req.status_code == 200:
                 bsObj = BS(req.content, "html.parser")
                 table = bsObj.find('table', 
-                        attrs={'id': 'ctl00_content_VacancyListAws_gridList'})
+                        attrs={'id': 'ctl00_content_vacancyList_gridList'}) 
+                                    # ctl00_content_VacancyListAws_gridList
                 if table:
                     tr_list = bsObj.find_all('tr', attrs={'id': True})
                     for tr in tr_list:
