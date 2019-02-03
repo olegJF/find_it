@@ -17,7 +17,7 @@
             <div class="col-12 text-left">
                 <h4> <a href='{{job.url}}'>{{job.title}}</a> </h4>
                 <p>{{job.description}}</p><br/>
-                <p>Вакансия от компании: {{job.company}}<small>. Дата размещения вакансии - {{job.timestamp| date:"SHORT_DATE_FORMAT"}}</small></p>
+                <p>Вакансия от компании: {{job.company}}<small>. Дата размещения вакансии:  {{job.timestamp| date:"d-m-Y"}}</small></p>
                 <hr><br/>
             </div>
         {% endfor %}
