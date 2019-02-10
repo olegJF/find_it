@@ -13,7 +13,7 @@ headers = [
     {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:53.0) Gecko/20100101 Firefox/53.0',
         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
     ]
-def djinni(base_url):
+def djinni(base_url, legal_words):
     jobs = []
     urls = []
     errors = []
@@ -52,7 +52,7 @@ def djinni(base_url):
                                 'title': 'Page do not respose'})
     return jobs, errors
 
-def rabota(base_url):
+def rabota(base_url, legal_words):
     jobs = []
     urls = []
     errors = []
@@ -80,39 +80,56 @@ def rabota(base_url):
             errors.append({'href': base_url,
                                 'title': 'Page do not respose'})
         # print(urls)
+        # legal_words = legal_words.split(' ') if legal_words else None
         for url in urls:
             time.sleep(2)
             nmb = random.randint(0, 2)
             req = session.get(url, headers=headers[nmb])
             if req.status_code == 200:
                 bsObj = BS(req.content, "html.parser")
-                table = bsObj.find('table', 
-                        attrs={'id': 'ctl00_content_vacancyList_gridList'}) 
-                                    # ctl00_content_VacancyListAws_gridList
-                if table:
-                    tr_list = bsObj.find_all('tr', attrs={'id': True})
-                    for tr in tr_list:
-                        h3 = tr.find('h3', 
-                                attrs={'class': 'f-vacancylist-vacancytitle'})
-                        title = h3.a.text
-                        href = h3.a['href']
-                        short = 'No description'
-                        company = "No name"
-                        logo = tr.find('p', 
-                                    attrs={'class': 'f-vacancylist-companyname'})
-                        if logo:
-                            try:
-                                company = logo.text
-                            except:
-                                pass
-                        p = tr.find('p', 
-                                    attrs={'class': 'f-vacancylist-shortdescr'})
-                        if p:
-                            short = p.text
-                        jobs.append({'href': domain + href,
-                                    'title': title, 
-                                    'descript': short,
-                                    'company': company})
+                new_jobs_found = not(bsObj.find('div', 
+                                attrs={'class': 'f-vacancylist-newnotfound'}))
+                if new_jobs_found:
+                    table = bsObj.find('table', 
+                            attrs={'id': 'ctl00_content_vacancyList_gridList'}) 
+                                        # ctl00_content_VacancyListAws_gridList
+                    if table:
+                        tr_list = bsObj.find_all('tr', attrs={'id': True})
+                        for tr in tr_list:
+                            h3 = tr.find('h3', 
+                                    attrs={'class': 'f-vacancylist-vacancytitle'})
+                            title = h3.a.text
+                            href = h3.a['href']
+                            short = 'No description'
+                            company = "No name"
+                            logo = tr.find('p', 
+                                        attrs={'class': 'f-vacancylist-companyname'})
+                            if logo:
+                                try:
+                                    company = logo.text
+                                except:
+                                    pass
+                            p = tr.find('p', 
+                                        attrs={'class': 'f-vacancylist-shortdescr'})
+                            if p:
+                                short = p.text
+                            # if legal_words:
+                            #     '''Если слова из legal_words есть в заглавии или в описании, 
+                            #         тогда добавляем эту вакансию в список.'''
+                            #     words_in_title = any((w in title.lower() for w in legal_words))
+                            #     words_in_descript = any((w in short.lower() for w in legal_words))
+                            #     if any( (words_in_title, words_in_descript)):
+                            #         jobs.append({'href': domain + href,
+                            #                     'title': title, 
+                            #                     'descript': short,
+                            #                     'company': company})
+                            # else:
+                            jobs.append({'href': domain + href,
+                                        'title': title, 
+                                        'descript': short,
+                                        'company': company})
+
+                        
                 else:
                     errors.append({'href': url,
                                 'title': 'The page is empty'})
@@ -122,7 +139,7 @@ def rabota(base_url):
     return jobs, errors
 
 
-def work(base_url):
+def work(base_url, legal_words):
     jobs = []
     urls = []
     errors = []
@@ -172,7 +189,7 @@ def work(base_url):
     return jobs, errors
 
 
-def dou(base_url):
+def dou(base_url, legal_words):
     
     jobs = []
     urls = []

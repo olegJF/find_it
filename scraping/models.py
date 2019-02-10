@@ -17,6 +17,8 @@ class City(models.Model):
 class Specialty(models.Model):
     name =  models.CharField(max_length=50, verbose_name='Специальность')
     slug = models.SlugField(blank=True)
+    legal_words = models.CharField(max_length=250, blank=True,
+                                    verbose_name='Название специальности, для проверки совпадений')
 
     def __str__(self):
         return self.name

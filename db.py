@@ -45,14 +45,20 @@ else:
     url_list = []
     for city in todo_list:
         for sp in todo_list[city]:
+            
             tmp = {}
             cur.execute("""SELECT site_id, url_address FROM scraping_url 
                     WHERE city_id=%s AND specialty_id=%s;""", (city, sp))
             qs = cur.fetchall()
             # print(qs)
             if qs:
+                # cur.execute(""" SELECT legal_words FROM scraping_specialty 
+                #         WHERE id=%s;""", (str(sp)))
+                # sp_qs = cur.fetchone()
+                # legal_words = sp_qs[0] if sp_qs[0] else None
                 tmp['city'] = city
                 tmp['specialty'] = sp
+                # tmp['legal_words'] = legal_words
                 for item in qs:
                     site_id = item[0]
                     tmp[sites[site_id]] = item[1]
@@ -65,7 +71,8 @@ else:
             tmp = {}
             tmp_content = []
             for (func, key) in UTILS_FUNC:
-                j, e = func(url.get(key, None))
+                # print(key, url['legal_words'])
+                j, e = func(url.get(key, None), None) # url['legal_words'])
                 tmp_content.extend(j)
                 errors.extend(e)
             tmp['city'] = url['city']
