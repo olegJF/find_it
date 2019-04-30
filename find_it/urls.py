@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.urls import include, path
 from django.contrib import admin
 from scraping.views import *
 from subscribers.views import *
@@ -7,13 +7,13 @@ import os
 TOKEN = os.environ.get('BOT_TOKEN')
 
 urlpatterns = [
-    url(r'^adminka/', admin.site.urls),
-    url(r'^api/{}/'.format(TOKEN ), include('scraping.api.urls')),
-    url(r'^list/', vacancy_list, name='list'),
-    url(r'^login/', login_subscriber, name='login'),
-    url(r'^update/', update_subscriber, name='update'),
-    url(r'^create/', SubscriberCreate.as_view(), name='create'),
-    url(r'^contact/', contact_admin, name='contact'),
-    url(r'^delete/$', delete_subscriber, name='delete'),
-    url(r'^$', index, name='index'),
+    path('adminka/', admin.site.urls),
+    path('api/{}/'.format(TOKEN ), include('scraping.api.urls')),
+    path('list/', vacancy_list, name='list'),
+    path('login/', login_subscriber, name='login'),
+    path('update/', update_subscriber, name='update'),
+    path('create/', SubscriberCreate.as_view(), name='create'),
+    path('contact/', contact_admin, name='contact'),
+    path('delete/', delete_subscriber, name='delete'),
+    path('', index, name='index'),
 ]

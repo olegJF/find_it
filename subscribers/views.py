@@ -3,7 +3,7 @@ from .forms import (SubscriberModelForm, LogInForm,
                     SubscriberHiddenEmailForm, ContactForm, TokenForm)
 from django.views.generic.edit import FormView, CreateView
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.conf import settings
 from .models import Subscriber
 
