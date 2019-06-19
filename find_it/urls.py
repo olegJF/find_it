@@ -8,7 +8,7 @@ TOKEN = os.environ.get('BOT_TOKEN')
 
 urlpatterns = [
     path('adminka/', admin.site.urls),
-    path('api/{}/'.format(TOKEN ), include('scraping.api.urls')),
+    path('api/v1/', include('scraping.api.urls')),
     path('list/', vacancy_list, name='list'),
     path('login/', login_subscriber, name='login'),
     path('update/', update_subscriber, name='update'),
