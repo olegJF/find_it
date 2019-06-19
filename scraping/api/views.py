@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from scraping.models import City, Specialty, Vacancy
 
 from rest_framework.response import Response
@@ -16,18 +17,20 @@ class CityListAPIView(viewsets.ModelViewSet):
     
     queryset = City.objects.all()
     serializer_class = CitySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     
 
 class SpecialtyListAPIView(viewsets.ModelViewSet):
     
     queryset = Specialty.objects.all()
     serializer_class = SpecialtySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
        
 
 class VacancyListAPIView(viewsets.ModelViewSet):
     """ 
     
-        ?city=kyiv&specialty=python
+        ?city=kyiv&sp=python
         
         city - slug for city filter;
         specialty - filter for specialty;
@@ -36,25 +39,22 @@ class VacancyListAPIView(viewsets.ModelViewSet):
     """
     queryset = Vacancy.objects.all()
     serializer_class = VacancySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     
     def get_queryset(self):
         req = self.request
         city_slug = req.query_params.get('city')
-        specialty_slug = req.query_params.get('specialty')
+        specialty_slug = req.query_params.get('sp')
         qs = None
-        
+        period = TODAY - datetime.timedelta(1)
         if city_slug and specialty_slug:
-            city, specialty = None, None
-            city = City.objects.filter(slug=city_slug).first()
-            if not city:
-                city = City.objects.filter(slug=specialty_slug).first()
-            specialty = Specialty.objects.filter(slug=specialty_slug).first()
-            if not specialty:
-                specialty = Specialty.objects.filter(slug=city_slug).first()
-            period = TODAY - datetime.timedelta(1)
-            if city and specialty:
-                qs = Vacancy.objects.filter(city=city, specialty=specialty, 
-                                timestamp__gte=period)
+            qs = Vacancy.objects.filter(city__slug=city_slug, 
+                                        specialty__slug=specialty_slug, 
+                                        timestamp__gte=period)
+            if not qs.exists():
+                qs = Vacancy.objects.filter(city__slug=specialty_slug, 
+                                        specialty__slug=city_slug, 
+                                        timestamp__gte=period)
              
         self.queryset = qs    
         return self.queryset
