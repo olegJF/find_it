@@ -39,7 +39,7 @@ def djinni(base_url, legal_words):
                         # company = "No name"
                         descr = li.find('div', attrs={'class': 'list-jobs__description'})
                         if descr:
-                            short = descr.p.text
+                            short = descr.text
                         jobs.append({'href': domain + href,
                                     'title': title, 
                                     'descript': short,
