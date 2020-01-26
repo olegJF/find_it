@@ -91,7 +91,8 @@ def rabota(base_url, legal_words):
                                 attrs={'class': 'f-vacancylist-newnotfound'}))
                 if new_jobs_found:
                     table = bsObj.find('table', 
-                            attrs={'id': 'ctl00_content_vacancyList_gridList'}) 
+                            attrs={'id': 'ctl00_content_vacancyList_vacList_gridList'})
+                                       # 'ctl00_content_vacancyList_gridList'
                                         # ctl00_content_VacancyListAws_gridList
                     if table:
                         tr_list = bsObj.find_all('tr', attrs={'id': True})
