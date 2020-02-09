@@ -2,7 +2,7 @@ import psycopg2
 import logging
 import datetime
 import os
-import requests
+# import requests
 import smtplib
 import time
 
@@ -14,8 +14,8 @@ yesterday = today - datetime.timedelta(1)
 dir = os.path.dirname(os.path.abspath('db.py'))
 path = ''.join([dir, '\\find_it\\secret.py'])
 if os.path.exists(path):
-    from find_it.secret import (DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, 
-                                MAILGUN_KEY, API, ADMIN_EMAIL, MAIL_SERVER, 
+    from find_it.secret import (DB_PASSWORD, DB_HOST, DB_NAME, DB_USER,
+                                MAILGUN_KEY, API, ADMIN_EMAIL, MAIL_SERVER,
                                 PASSWORD_AWARD, USER_AWARD, FROM_EMAIL)
 else:
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
@@ -29,7 +29,7 @@ else:
     PASSWORD_AWARD = os.environ.get('PASSWORD_AWARD')
     USER_AWARD = os.environ.get('USER_AWARD')
     FROM_EMAIL = os.environ.get('FROM_EMAIL')
-    
+
 # FROM_EMAIL = 'noreply@jobfinderapp.heroku.com'
 # SUBJECT = 'Недостающие урлы {}'.format(today)
 msg = MIMEMultipart('alternative')
@@ -61,14 +61,14 @@ else:
     for pair in qs:
         cur.execute("""SELECT * FROM scraping_url  WHERE city_id=%s 
                     AND specialty_id=%s;""", (pair[0], pair[1]))
-        qs = cur.fetchall()
-        if not qs:
+        _qs = cur.fetchall()
+        if not _qs:
             mis_urls.append((cities[pair[0]], sp[pair[1]]))
     if mis_urls:
         for p in mis_urls:
             cnt += 'город -{}, специальность - {}'.format(p[0], p[1])
         msg['Subject'] = 'Недостающие урлы {}'.format(today)
-        
+
         part = MIMEText(cnt, 'plain')
         msg.attach(part)
         mail.sendmail(FROM_EMAIL, email, msg.as_string())
@@ -83,11 +83,10 @@ else:
         cnt = 'На дату {}  обнаруженны следующие ошибки скрапинга:'.format(yesterday)
         for err in data:
             cnt += 'для url -{}, причина - {}\n'.format(err['href'], err['title'])
-            
+
         part = MIMEText(cnt, 'plain')
         msg.attach(part)
         mail.sendmail(FROM_EMAIL, email, msg.as_string())
-
 
     conn.commit()
     cur.close()
