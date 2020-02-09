@@ -1,14 +1,33 @@
+import asyncio
 import psycopg2
 import logging
 import datetime
 import os
 import json
+import time
 from scraping.utils import *
-from elasticsearch import Elasticsearch
+# from elasticsearch import Elasticsearch
 
 today = datetime.date.today()
 UTILS_FUNC = [(djinni, 'Djinni.co'), (work, 'Work.ua'),
             (rabota, 'Rabota.ua'), (dou, 'Dou.ua')]
+
+all_data = []
+errors = []
+
+
+async def main(value):
+    _tmp = {}
+    _func = value[0]
+    _url = value[1]
+    _data = value[2]
+    _job, _err = await loop.run_in_executor(None, _func, _url, None)
+    errors.extend(_err)
+    _tmp['city'] = _data['city']
+    _tmp['specialty'] = _data['specialty']
+    _tmp['content'] = _job
+    all_data.append(_tmp)
+
 ten_days_ago = datetime.date.today() - datetime.timedelta(10)
 dir = os.path.dirname(os.path.abspath('db.py'))
 path = ''.join([dir, '\\find_it\\secret.py'])
@@ -22,10 +41,10 @@ else:
     ES_PASSWORD = os.environ.get('ES_PASSWORD')
     ES_HOST = os.environ.get('ES_HOST')
     ES_USER = os.environ.get('ES_USER')
- 
+
 try:
-    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST, 
-                                password=DB_PASSWORD)
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, host=DB_HOST,
+                            password=DB_PASSWORD)
 except:
     logging.exception('Unable to open DB -{}'.format(today))
 else:
@@ -45,14 +64,13 @@ else:
     url_list = []
     for city in todo_list:
         for sp in todo_list[city]:
-            
             tmp = {}
             cur.execute("""SELECT site_id, url_address FROM scraping_url 
                     WHERE city_id=%s AND specialty_id=%s;""", (city, sp))
             qs = cur.fetchall()
             # print(qs)
             if qs:
-                # cur.execute(""" SELECT legal_words FROM scraping_specialty 
+                # cur.execute(""" SELECT legal_words FROM scraping_specialty
                 #         WHERE id=%s;""", (str(sp)))
                 # sp_qs = cur.fetchone()
                 # legal_words = sp_qs[0] if sp_qs[0] else None
@@ -64,27 +82,36 @@ else:
                     tmp[sites[site_id]] = item[1]
                 url_list.append(tmp)
     # print(url_list)
-    all_data = []
-    errors = []
+
     if url_list:
-        for url in url_list:
-            tmp = {}
-            tmp_content = []
-            for (func, key) in UTILS_FUNC:
-                # print(key, url['legal_words'])
-                j, e = func(url.get(key, None), None) # url['legal_words'])
-                tmp_content.extend(j)
-                errors.extend(e)
-            tmp['city'] = url['city']
-            tmp['specialty'] = url['specialty']
-            tmp['content'] = tmp_content
-            all_data.append(tmp)
+        loop = asyncio.get_event_loop()
+        tmp_tasks = [(func, url.get(key, None), url)
+                     for url in url_list
+                     for func, key in UTILS_FUNC]
+        tasks = asyncio.wait([loop.create_task(main(f)) for f in tmp_tasks])
+
+        # started = time.time()
+        loop.run_until_complete(tasks)
+        loop.close()
+        # for url in url_list:
+        #     tmp = {}
+        #     tmp_content = []
+        #     for (func, key) in UTILS_FUNC:
+        #         # print(key, url['legal_words'])
+        #         j, e = func(url.get(key, None), None) # url['legal_words'])
+        #         tmp_content.extend(j)
+        #         errors.extend(e)
+        #     tmp['city'] = url['city']
+        #     tmp['specialty'] = url['specialty']
+        #     tmp['content'] = tmp_content
+        #     all_data.append(tmp)
+        # print('Spent: {}'.format(time.time() - started))
     # print('get data')
     if all_data:
         for data in all_data:
             city = data['city']
             specialty = data['specialty']
-            jobs = data['content'] 
+            jobs = data['content']
             for job in jobs:
                 cur.execute("""SELECT * FROM scraping_vacancy 
                                 WHERE url=%s; """, (job['href'], ))
@@ -93,9 +120,9 @@ else:
                     cur.execute("""INSERT INTO scraping_vacancy 
                                     (city_id, specialty_id, title,
                                     url, description, company, timestamp) 
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s); """, 
-                                 (city, specialty, job['title'],job['href'], 
-                                 job['descript'], job['company'], today ))
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s); """,
+                                 (city, specialty, job['title'],job['href'],
+                                 job['descript'], job['company'], today))
 
     if errors:
         cur.execute("""SELECT data FROM scraping_error 
@@ -110,40 +137,9 @@ else:
             data = {}
             data['errors'] = errors
             cur.execute("""INSERT INTO scraping_error (data, timestamp) 
-                            VALUES (%s, %s); """, (json.dumps(data), today ))
-                                 
-    
+                            VALUES (%s, %s); """, (json.dumps(data), today))
 
-    # cur.execute("""SELECT url, title, description, company, timestamp, 
-    #                 city_id, specialty_id FROM  scraping_vacancy 
-    #                 WHERE timestamp<=%s;""", (ten_days_ago,))
-    # qs = cur.fetchall()
-    # if qs:
-    #     vacancies = []
-    #     cur.execute(""" SELECT * FROM scraping_city;""")
-    #     cities_qs = cur.fetchall()
-    #     cities = {i[0]: i[1] for i in cities_qs}
-    #     cur.execute(""" SELECT * FROM scraping_specialty;""")
-    #     sp_qs = cur.fetchall()
-    #     sp = {i[0]: i[1] for i in sp_qs}
-    #     try:
-    #         es = Elasticsearch(ES_HOST, http_auth=(ES_USER, ES_PASSWORD))
-    #     except:
-    #         pass
-    #     else:
-    #         for q in qs:
-    #             data = {'url': q[0], 'title': q[1], 
-    #                             'description': q[2], 
-    #                             'company': q[3],
-    #                             'timestamp': q[4],
-    #                             'city': cities[q[5]],
-    #                             'specialty': sp[q[6]]}
-    #             try:
-    #                 res = es.index(index='jobs', doc_type='live', body=data)
-    #             except:
-    #                 pass
-                    
-    cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""", 
+    cur.execute("""DELETE FROM  scraping_vacancy WHERE timestamp<=%s;""",
                    (ten_days_ago,))
 
     conn.commit()
