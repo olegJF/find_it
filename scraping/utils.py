@@ -94,40 +94,42 @@ def rabota(base_url, legal_words):
                                 attrs={'class': 'f-vacancylist-newnotfound'}))
                 if new_jobs_found:
                     table = bsObj.find('table',
-                            attrs={'id': 'ctl00_content_vacancyList_vacList_gridList'})
-                                       # 'ctl00_content_vacancyList_gridList'
-                                        # ctl00_content_VacancyListAws_gridList
+                            attrs={'id': 'ctl00_content_vacancyList_gridList'})
+                            # ctl00_content_VacancyListAws_gridList
+                    #       ctl00_content_vacancyList_vacList_gridList
                     if table:
                         tr_list = bsObj.find_all('tr', attrs={'id': True})
                         for tr in tr_list:
-                            h3 = tr.find('h3',
-                                    attrs={'class': 'f-vacancylist-vacancytitle'})
+                            div = tr.find('div',
+                                          attrs={'class': 'card-body'})
+                            h3 = div.find('p',
+                                    attrs={'class': 'card-title'})
                             title = h3.a.text
                             href = h3.a['href']
                             short = 'No description'
                             company = "No name"
-                            logo = tr.find('p',
-                                        attrs={'class': 'f-vacancylist-companyname'})
-                            if logo:
-                                try:
-                                    company = logo.text
-                                except:
-                                    pass
-                            p = tr.find('p',
-                                        attrs={'class': 'f-vacancylist-shortdescr'})
+                            company_name = tr.find('p',
+                                        attrs={'class': 'company-name'})
+                            if company_name:
+                                _title = company_name.a['title']
+                                _text = company_name.a.text
+                                _title = _title if _title else _text
+                                if _title:
+                                    company = _title
+                            # logo = tr.find('p',
+                            #             attrs={'class': 'f-vacancylist-companyname'})
+                            # if logo:
+                            #     try:
+                            #         company = logo.text
+                            #     except:
+                            #         pass
+                            # p = tr.find('p',
+                            #             attrs={'class': 'f-vacancylist-shortdescr'})
+                            p = div.find('div',
+                                         attrs={'class': 'card-description'})
                             if p:
                                 short = p.text
-                            # if legal_words:
-                            #     '''Если слова из legal_words есть в заглавии или в описании,
-                            #         тогда добавляем эту вакансию в список.'''
-                            #     words_in_title = any((w in title.lower() for w in legal_words))
-                            #     words_in_descript = any((w in short.lower() for w in legal_words))
-                            #     if any( (words_in_title, words_in_descript)):
-                            #         jobs.append({'href': domain + href,
-                            #                     'title': title,
-                            #                     'descript': short,
-                            #                     'company': company})
-                            # else:
+
                             jobs.append({'href': domain + href,
                                         'title': title,
                                         'descript': short,
