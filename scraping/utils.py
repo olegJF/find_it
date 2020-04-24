@@ -23,7 +23,7 @@ def djinni(base_url, legal_words):
         session = requests.Session()
         domain = 'https://djinni.co'
         urls.append(base_url)
-        urls.append(base_url+'&page=2')
+        # urls.append(base_url+'&page=2')
 
         for url in urls:
             time.sleep(2)
