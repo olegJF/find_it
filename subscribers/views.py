@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import (SubscriberModelForm, LogInForm, 
+from .forms import (SubscriberModelForm, LogInForm,
                     SubscriberHiddenEmailForm, ContactForm, TokenForm)
 from django.views.generic.edit import FormView, CreateView
 from django.contrib import messages
@@ -37,6 +37,7 @@ class SubscriberCreate(CreateView):
             messages.error(request, 'Проверьте правильность заполнения формы')
             return self.form_invalid(form)
 
+
 def login_subscriber(request):
     if request.method == "GET":
         form = LogInForm
@@ -48,21 +49,21 @@ def login_subscriber(request):
             request.session['email'] = data['email']
             return redirect('update')
         return render(request, 'subscribers/login.html', {'form': form})
-        
+
 
 def update_subscriber(request):
     if request.method == 'GET' and request.session.get('email', False):
         email = request.session.get('email')
         qs = Subscriber.objects.filter(email=email).first()
         token_form = TokenForm(initial={'email': qs.email, 'token': qs.token})
-        form = SubscriberHiddenEmailForm(initial={'email': qs.email, 
-                                                    'city': qs.city, 
-                                                    'specialty': qs.specialty, 
-                                                    'password': qs.password, 
-                                                    'is_active': qs.is_active})
-        return render(request, 'subscribers/update.html', 
-                                                {'form': form, 
-                                                'token_form': token_form})
+        form = SubscriberHiddenEmailForm(
+            initial={'email': qs.email, 'city': qs.city,
+                     'specialty': qs.specialty, 'password': qs.password,
+                     'is_active': qs.is_active}
+        )
+        return render(request, 'subscribers/update.html',
+                      {'form': form, 'token_form': token_form}
+                      )
     elif request.method == 'POST':
         email = request.session.get('email')
         user = get_object_or_404(Subscriber, email=email)
@@ -87,7 +88,7 @@ def delete_subscriber(request):
             form_email = form.cleaned_data['email']
             form_token = form.cleaned_data['token']
             token = str(user.token)
-            # assert False 
+            # assert False
             if email == form_email and token == form_token:
                 user.delete()
                 messages.success(request, 'Данные успешно удалены.')
@@ -99,9 +100,8 @@ def delete_subscriber(request):
         return redirect('login')
 
 
-
 def contact_admin(request):
-    if request.method =='POST':
+    if request.method == 'POST':
         form = ContactForm(request.POST or None)
         if form.is_valid():
             city = form.cleaned_data['city']
@@ -123,8 +123,6 @@ def contact_admin(request):
             email = [ADMIN_EMAIL]
             msg.attach(MIMEText(content))
             mail.sendmail(FROM_EMAIL, email, msg.as_string())
-            # requests.post(API,  auth=("api", MAILGUN_KEY), data={"from": from_email, "to": ADMIN_EMAIL,
-            #                     "subject":Subject , "text": content})
             messages.success(request, 'Ваше письмо отправленно')
             mail.quit()
             return redirect('index')
@@ -132,3 +130,11 @@ def contact_admin(request):
     else:
         form = ContactForm()
     return render(request, 'subscribers/contact.html', {'form': form})
+
+
+def logout(request):
+    email = request.session.get('email')
+    if email:
+        del request.session['email']
+        return redirect('index')
+    return redirect('login')

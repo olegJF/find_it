@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/v1/', include('scraping.api.urls')),
     path('list/', vacancy_list, name='list'),
     path('login/', login_subscriber, name='login'),
+    path('logout/', logout, name='logout'),
     path('update/', update_subscriber, name='update'),
     path('create/', SubscriberCreate.as_view(), name='create'),
     path('contact/', contact_admin, name='contact'),
