@@ -2,24 +2,30 @@
 
 {% block title %}   Список вакансий         {% endblock title %}
 {% block content %}
-<div class="row my-5">
+<div class="row ">
     <div class="col">
-        <h1 class="my-5 ">Список вакансий</h1>
+        <h1 class="my-2 ">Список вакансий</h1>
     </div>
 </div>
 
-<div class="row my-5">
+<div class="row my-3">
     {% if jobs %}
         <div class="col-12 text-center">
-            <h2 >Вакансии по запросу: город -{{city}} , специальность - {{specialty}}</h2><hr><br/>
+            <h3 >Вакансии по запросу: город - {{city_name}} , специальность - {{sp_name}}</h3><hr><br/>
         </div>
         {% for job in jobs %}
             <div class="col-12 text-left">
-                <h4> <a href='{{job.url}}'>{{job.title}}</a> </h4>
-                <p>{{job.description}}</p><br/>
-                <p>Вакансия от компании: {{job.company}}<small>. Дата размещения вакансии:  {{job.timestamp| date:"d-m-Y"}}</small></p>
-                <hr><br/>
+                <div class="card my-3">
+                    <h5 class="card-header"><a href="{{ job.url }}">{{ job.title }}</a></h5>
+                    <div class="card-body">
+                        <p class="card-text">{{ job.description }}</p>
+                        <p><strong>{{ job.company }}</strong></p>
+                        <p>{{job.city.name }} | {{job.specialty.name }} |
+                          <small>{{job.timestamp|date:"d-m-Y" }}</small></p>
+                    </div>
+                </div>
             </div>
+
         {% endfor %}
 
         <div id="navigation" class="container my-1">
@@ -29,16 +35,16 @@
                         <ul class="pagination">
                             {% if jobs.has_previous %}
                                 <li class="page-item">
-                                <a class="page-link" 
-                                    href="?city={{city_id}}&specialty={{specialty_id}}&page={{ jobs.previous_page_number }}"
-                                        aria-label="Previous"> 
+                                <a class="page-link"
+                                    href="?city={{city}}&specialty={{specialty}}&page={{ jobs.previous_page_number }}"
+                                        aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
-                                                                
+
                                 </a>
                                 </li>
                             {% else %}
-                    
+
                             {% endif %}
                             {% for page in jobs.paginator.page_range %}
                                 {% if page == jobs.number %}
@@ -49,8 +55,8 @@
                                     </li>
                                 {% else %}
                                     <li class="page-item">
-                                        <a class="page-link" 
-                                            href="?city={{city_id}}&specialty={{specialty_id}}&page={{page}}">
+                                        <a class="page-link"
+                                            href="?city={{city}}&specialty={{specialty}}&page={{page}}">
                                             {{page}}
                                         </a>
                                     </li>
@@ -58,15 +64,15 @@
                             {% endfor %}
                             {% if jobs.has_next %}
                                 <li class="page-item">
-                                <a class="page-link" 
-                                    href="?city={{city_id}}&specialty={{specialty_id}}&page={{jobs.paginator.num_pages }}" 
+                                <a class="page-link"
+                                    href="?city={{city}}&specialty={{specialty}}&page={{jobs.paginator.num_pages }}"
                                         aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                     <span class="sr-only">Next</span>
                                 </a>
                                 </li>
                             {% else %}
-                    
+
                             {% endif %}
                         </ul>
                     </nav>
@@ -80,12 +86,16 @@
     {% endif %}
 </div>
 
-<div class="row">
-    <div class="col">
-        <form method="get" action="">
-            {{form.as_p}}
-            <button type="submit" class="btn btn-success">Показать</button>
-        </form>
+<div class="row ">
+    <div class="col-md-6 mx-auto my-3">
+        <h4 class="my-4 text-center">Новый поиск</h4>
+    <form method="GET" action="">
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Найти</button>
+    </form>
     </div>
 </div>
+
 {% endblock content %}

@@ -9,7 +9,7 @@ TOKEN = os.environ.get('BOT_TOKEN')
 urlpatterns = [
     path('adminka/', admin.site.urls),
     path('api/v1/', include('scraping.api.urls')),
-    path('list/', vacancy_list, name='list'),
+    path('list/', list_view, name='list'),
     path('login/', login_subscriber, name='login'),
     path('logout/', logout, name='logout'),
     path('update/', update_subscriber, name='update'),
