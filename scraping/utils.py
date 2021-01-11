@@ -102,7 +102,7 @@ def rabota(base_url, legal_words):
                         for tr in tr_list:
                             div = tr.find('div',
                                           attrs={'class': 'card-body'})
-                            h3 = div.find('p',
+                            h3 = div.find('h2',
                                     attrs={'class': 'card-title'})
                             title = h3.a.text
                             href = h3.a['href']
