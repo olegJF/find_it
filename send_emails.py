@@ -4,6 +4,7 @@ import datetime
 import os
 import requests
 import smtplib
+import ssl
 import time
 
 from email.mime.multipart import MIMEMultipart
@@ -71,9 +72,12 @@ else:
         msg['Subject'] = 'Список вакансий за  {}'.format(today)
         # msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
         msg['From'] = FROM_
-        mail = smtplib.SMTP_SSL(host=MAIL_SERVER).connect(MAIL_SERVER, 25)
+        
+        context = ssl.create_default_context()
+        mail = smtplib.SMTP(MAIL_SERVER, 25)
         mail.ehlo()
-        # mail.starttls()
+        mail.starttls(context=context)
+        mail.ehlo()
         mail.login(USER_AWARD, PASSWORD_AWARD)
         if jobs_qs:
             # print('Jobs are')
