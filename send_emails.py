@@ -71,10 +71,9 @@ else:
         msg['Subject'] = 'Список вакансий за  {}'.format(today)
         # msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
         msg['From'] = FROM_
-        mail = smtplib.SMTP()
-        mail.connect(MAIL_SERVER, 25)
+        mail = smtplib.SMTP_SSL(host=MAIL_SERVER).connect(MAIL_SERVER, 25)
         mail.ehlo()
-        mail.starttls()
+        # mail.starttls()
         mail.login(USER_AWARD, PASSWORD_AWARD)
         if jobs_qs:
             # print('Jobs are')
