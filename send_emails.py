@@ -74,7 +74,8 @@ else:
         msg['From'] = FROM_
         
         context = ssl.create_default_context()
-        mail = smtplib.SMTP(MAIL_SERVER, 25)
+        mail = smtplib.SMTP()
+        mail.connect(MAIL_SERVER, 25)
         mail.ehlo()
         mail.starttls(context=context)
         mail.ehlo()
