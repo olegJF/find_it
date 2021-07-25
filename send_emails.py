@@ -71,7 +71,7 @@ else:
         print(email_qs)
         sys.stdout.flush()
         # emails = [i[0] for i in email_qs]
-        emails = [MY_EMAIL]
+        emails = [(MY_EMAIL,)]
         print(emails)
         sys.stdout.flush()
         cur.execute("""SELECT url, title, description, company 
