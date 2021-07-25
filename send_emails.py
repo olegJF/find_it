@@ -66,10 +66,14 @@ else:
         cur.execute(""" SELECT email FROM subscribers_subscriber 
                             WHERE is_active=%s 
                             AND city_id=%s AND specialty_id=%s;""",
-                            (True, city, specialty))
+                    (True, city, specialty))
         email_qs = cur.fetchall()
+        print(email_qs)
+        sys.stdout.flush()
         # emails = [i[0] for i in email_qs]
         emails = [MY_EMAIL]
+        print(emails)
+        sys.stdout.flush()
         cur.execute("""SELECT url, title, description, company 
                         FROM scraping_vacancy WHERE city_id=%s 
                         AND specialty_id=%s AND timestamp=%s; """,
