@@ -1,3 +1,5 @@
+import sys
+
 import psycopg2
 import logging
 import datetime
@@ -16,8 +18,8 @@ ten_days_ago = datetime.date.today() - datetime.timedelta(10)
 dir = os.path.dirname(os.path.abspath('db.py'))
 path = ''.join([dir, '\\find_it\\secret.py'])
 if os.path.exists(path):
-    from find_it.secret import (DB_PASSWORD, DB_HOST, DB_NAME, DB_USER, 
-                                MAILGUN_KEY, API, MAIL_SERVER, 
+    from find_it.secret import (DB_PASSWORD, DB_HOST, DB_NAME, DB_USER,
+                                MAILGUN_KEY, API, MAIL_SERVER,
                                 PASSWORD_AWARD, USER_AWARD, FROM_EMAIL)
 else:
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
@@ -30,7 +32,8 @@ else:
     PASSWORD_AWARD = os.environ.get('PASSWORD_AWARD')
     USER_AWARD = os.environ.get('USER_AWARD')
     FROM_EMAIL = os.environ.get('FROM_EMAIL')
-    
+    MY_EMAIL = os.environ.get('MY_EMAIL')
+
 
 FROM_ = '{email}'.format(email=FROM_EMAIL)
 SUBJECT = 'Список вакансий за  {}'.format(today)
@@ -41,17 +44,20 @@ end = '</body></html>'
 text = '''Список вакансий, согласно Ваших предпочтений с сервиса JobFinder'''
 
 try:
-    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, 
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
                             host=DB_HOST, password=DB_PASSWORD)
-except:
+except Exception:
     logging.exception('Unable to open DB -{}'.format(today))
 else:
     cur = conn.cursor()
     cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber 
                     WHERE is_active=%s;""", (True,))
-    cities_qs = list(set(cur.fetchall()))
+    # cities_qs = list(set(cur.fetchall()))
     # print(cities_qs)
-    
+    cities_qs = [(2, 1)]
+    print(cities_qs)
+    sys.stdout.flush()
+
     for pair in cities_qs:
         content = '''<h3>Список вакансий, согласно Ваших предпочтений. </h3>
                     <hr><br/><br/>'''
@@ -59,26 +65,28 @@ else:
         specialty = pair[1]
         cur.execute(""" SELECT email FROM subscribers_subscriber 
                             WHERE is_active=%s 
-                            AND city_id=%s AND specialty_id=%s;""", 
+                            AND city_id=%s AND specialty_id=%s;""",
                             (True, city, specialty))
         email_qs = cur.fetchall()
-        emails = [i[0] for i in email_qs]
+        # emails = [i[0] for i in email_qs]
+        emails = [MY_EMAIL]
         cur.execute("""SELECT url, title, description, company 
                         FROM scraping_vacancy WHERE city_id=%s 
-                        AND specialty_id=%s AND timestamp=%s; """, 
+                        AND specialty_id=%s AND timestamp=%s; """,
                         (city, specialty, today ))
         jobs_qs = cur.fetchall()
         msg = MIMEMultipart('alternative')
         msg['Subject'] = 'Список вакансий за  {}'.format(today)
         # msg['From'] = 'Вакансии <{email}>'.format(email=FROM_EMAIL)
         msg['From'] = FROM_
-        
+
         context = ssl.create_default_context()
         mail = smtplib.SMTP()
         mail.connect(MAIL_SERVER, 25)
         mail.ehlo()
-        mail.starttls(context=context)
-        mail.ehlo()
+        # mail.starttls(context=context)
+        mail.starttls()
+        # mail.ehlo()
         mail.login(USER_AWARD, PASSWORD_AWARD)
         if jobs_qs:
             # print('Jobs are')
@@ -98,7 +106,7 @@ else:
             part = MIMEText(html_m, 'html')
             msg.attach(part)
             mail.sendmail(FROM_EMAIL, emails, msg.as_string())
-            
+
         else:
             content = '''<h3>На сегодня, список вакансий по 
                                 Вашему запросу, пуст.</h3> '''
@@ -112,9 +120,9 @@ else:
             part = MIMEText(html_m, 'html')
             msg.attach(part)
             mail.sendmail(FROM_EMAIL, emails, msg.as_string())
-            
+
         mail.quit()
     conn.commit()
     cur.close()
     conn.close()
-    
+
