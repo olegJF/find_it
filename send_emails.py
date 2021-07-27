@@ -52,11 +52,9 @@ else:
     cur = conn.cursor()
     cur.execute(""" SELECT city_id, specialty_id FROM subscribers_subscriber 
                     WHERE is_active=%s;""", (True,))
-    # cities_qs = list(set(cur.fetchall()))
+    cities_qs = list(set(cur.fetchall()))
     # print(cities_qs)
-    cities_qs = [(2, 1)]
-    print(cities_qs)
-    sys.stdout.flush()
+    # sys.stdout.flush()
 
     for pair in cities_qs:
         content = '''<h3>Список вакансий, согласно Ваших предпочтений. </h3>
@@ -70,10 +68,9 @@ else:
         email_qs = cur.fetchall()
         print(email_qs)
         sys.stdout.flush()
-        # emails = [i[0] for i in email_qs]
-        emails = [(MY_EMAIL,)]
-        print(emails)
-        sys.stdout.flush()
+        emails = [i[0] for i in email_qs]
+        # print(emails)
+        # sys.stdout.flush()
         cur.execute("""SELECT url, title, description, company 
                         FROM scraping_vacancy WHERE city_id=%s 
                         AND specialty_id=%s AND timestamp=%s; """,
@@ -128,5 +125,6 @@ else:
         mail.quit()
     conn.commit()
     cur.close()
+finally:
     conn.close()
 
