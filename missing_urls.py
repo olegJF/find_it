@@ -54,7 +54,7 @@ else:
     mis_urls = []
     cnt = 'На дату {}  отсутствуют урлы для следующих пар:'.format(today)
     mail = smtplib.SMTP()
-    mail.connect(MAIL_SERVER, 25)
+    mail.connect(MAIL_SERVER, 250)
     mail.ehlo()
     mail.starttls()
     mail.login(USER_AWARD, PASSWORD_AWARD)
