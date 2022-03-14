@@ -9,8 +9,9 @@ from scraping.utils import *
 # from elasticsearch import Elasticsearch
 
 today = datetime.date.today()
-UTILS_FUNC = [(djinni, 'Djinni.co'), (work, 'Work.ua'),
-            (rabota, 'Rabota.ua'), (dou, 'Dou.ua')]
+UTILS_FUNC = [(djinni, 'Djinni.co'), (work, 'Work.ua'), (dou, 'Dou.ua'),
+              # (rabota, 'Rabota.ua'), 
+              ]
 
 all_data = []
 errors = []
